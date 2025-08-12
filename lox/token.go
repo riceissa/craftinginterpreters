@@ -5,7 +5,7 @@ import (
 )
 
 type Token struct {
-	token_type TokenType // can we just call this "type" instead of token_type? or does golang disallow this?
+	token_type TokenType
 	lexeme     string
 	literal    any
 	line       int
