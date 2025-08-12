@@ -10,8 +10,6 @@ import (
 var hadError = false
 
 func main() {
-	test_ast_printer()
-	os.Exit(0)
 	if len(os.Args) > 2 {
 		fmt.Println("Usage: jlox [script]")
 		os.Exit(64)
@@ -60,10 +58,18 @@ func run(source string) {
 	// fmt.Println(source)
 	scanner := NewScanner(source)
 	tokens := scanner.ScanTokens()
+	parser := Parser{tokens: tokens}
+	expression := parser.parse()
 
-	for index, tok := range tokens {
-		fmt.Println(index, tok)
+	if (hadError) {
+		return
 	}
+
+	fmt.Println(print_expr(expression))
+
+	// for index, tok := range tokens {
+	// 	fmt.Println(index, tok)
+	// }
 }
 
 func log_error(line int, message string) {
