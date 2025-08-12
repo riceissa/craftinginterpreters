@@ -1,19 +1,19 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"log"
 	"bufio"
+	"fmt"
+	"log"
+	"os"
 )
 
 var hadError = false
 
 func main() {
-	if (len(os.Args) > 2) {
+	if len(os.Args) > 2 {
 		fmt.Println("Usage: jlox [script]")
 		os.Exit(64)
-	} else if (len(os.Args) == 2) {
+	} else if len(os.Args) == 2 {
 		fmt.Printf("running script %v\n", os.Args[1])
 		runFile(os.Args[1])
 	} else {
@@ -29,7 +29,7 @@ func runFile(path string) {
 	}
 	run(string(bytes))
 
-	if (hadError) {
+	if hadError {
 		os.Exit(65)
 	}
 }

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"strconv"
 	"log"
+	"strconv"
 )
 
 type Scanner struct {
