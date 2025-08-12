@@ -1,6 +1,9 @@
 package main
 
-import "strconv"
+import (
+	"strconv"
+	"log"
+)
 
 type Scanner struct {
 	source  string
@@ -38,15 +41,15 @@ func NewScanner(source string) Scanner {
 
 func (s *Scanner) ScanTokens() []Token {
 	for !s.isAtEnd() {
-		start = current
-		scanToken()
+		s.start = s.current
+		s.scanToken()
 	}
 
-	tokens.add(Token{EOF, "", nil, line})
-	return tokens
+	s.tokens = append(s.tokens, Token{EOF, "", nil, s.line})
+	return s.tokens
 }
 
-func (s *Scanner) isAtEnd() {
+func (s *Scanner) isAtEnd() bool {
 	return s.current >= len(s.source)
 }
 
@@ -62,64 +65,64 @@ func (s *Scanner) addSimpleToken(token_type TokenType) {
 
 func (s *Scanner) addToken(token_type TokenType, literal any) {
 	text := s.source[s.start:s.current]
-	tokens.add(Token{token_type, text, literal, s.line})
+	s.tokens = append(s.tokens, Token{token_type, text, literal, s.line})
 }
 
 func (s *Scanner) scanToken() {
-	c := advance()
+	c := s.advance()
 	switch c {
 	case '(':
-		addSimpleToken(LEFT_PAREN)
+		s.addSimpleToken(LEFT_PAREN)
 	case ')':
-		addSimpleToken(RIGHT_PAREN)
+		s.addSimpleToken(RIGHT_PAREN)
 	case '{':
-		addSimpleToken(LEFT_BRACE)
+		s.addSimpleToken(LEFT_BRACE)
 	case '}':
-		addSimpleToken(RIGHT_BRACE)
+		s.addSimpleToken(RIGHT_BRACE)
 	case ',':
-		addSimpleToken(COMMA)
+		s.addSimpleToken(COMMA)
 	case '.':
-		addSimpleToken(DOT)
+		s.addSimpleToken(DOT)
 	case '-':
-		addSimpleToken(MINUS)
+		s.addSimpleToken(MINUS)
 	case '+':
-		addSimpleToken(PLUS)
+		s.addSimpleToken(PLUS)
 	case ';':
-		addSimpleToken(SEMICOLON)
+		s.addSimpleToken(SEMICOLON)
 	case '*':
-		addSimpleToken(STAR)
+		s.addSimpleToken(STAR)
 	case '!':
-		if match('=') {
-			addSimpleToken(BANG_EQUAL)
+		if s.match('=') {
+			s.addSimpleToken(BANG_EQUAL)
 		} else {
-			addSimpleToken(BANG)
+			s.addSimpleToken(BANG)
 		}
 	case '=':
-		if match('=') {
-			addSimpleToken(EQUAL_EQUAL)
+		if s.match('=') {
+			s.addSimpleToken(EQUAL_EQUAL)
 		} else {
-			addSimpleToken(EQUAL)
+			s.addSimpleToken(EQUAL)
 		}
 	case '<':
-		if match('=') {
-			addSimpleToken(LESS_EQUAL)
+		if s.match('=') {
+			s.addSimpleToken(LESS_EQUAL)
 		} else {
-			addSimpleToken(LESS)
+			s.addSimpleToken(LESS)
 		}
 	case '>':
-		if match('=') {
-			addSimpleToken(GREATER_EQUAL)
+		if s.match('=') {
+			s.addSimpleToken(GREATER_EQUAL)
 		} else {
-			addSimpleToken(GREATER)
+			s.addSimpleToken(GREATER)
 		}
 	case '/':
-		if match('/') {
+		if s.match('/') {
 			// A comment goes until the end of the line
 			for s.peek() != '\n' && !s.isAtEnd() {
 				s.advance()
 			}
 		} else {
-			addSimpleToken(SLASH)
+			s.addSimpleToken(SLASH)
 		}
 	case ' ':
 		// do nothing
@@ -137,7 +140,7 @@ func (s *Scanner) scanToken() {
 		} else if isAlpha(c) {
 			s.scan_identifier()
 		} else {
-			lox.error(s.line, "Unexpected character.")
+			log_error(s.line, "Unexpected character.")
 		}
 	}
 }
@@ -155,11 +158,11 @@ func (s *Scanner) scan_number() {
 		}
 	}
 
-	f, err := strconv.ParseFloat(s.source[start:current], 64)
+	f, err := strconv.ParseFloat(s.source[s.start:s.current], 64)
 	if err != nil {
 		log.Fatal(err)
 	}
-	addToken(NUMBER, f)
+	s.addToken(NUMBER, f)
 }
 
 func (s *Scanner) scan_string() {
@@ -171,7 +174,7 @@ func (s *Scanner) scan_string() {
 	}
 
 	if s.isAtEnd() {
-		lox.error(line, "Unterminated string.")
+		log_error(s.line, "Unterminated string.")
 		return
 	}
 
@@ -179,7 +182,7 @@ func (s *Scanner) scan_string() {
 
 	// Trim the surrounding quotes
 	value := s.source[s.start+1 : s.current-1]
-	addToken(STRING, value)
+	s.addToken(STRING, value)
 }
 
 func (s *Scanner) scan_identifier() {
@@ -192,7 +195,7 @@ func (s *Scanner) scan_identifier() {
 	if !ok {
 		token_type = IDENTIFIER
 	}
-	addSimpleToken(token_type)
+	s.addSimpleToken(token_type)
 }
 
 func (s *Scanner) match(expected byte) bool {
@@ -220,16 +223,16 @@ func (s *Scanner) peekNext() byte {
 	return s.source[s.current+1]
 }
 
-func isAlpha(c byte) {
+func isAlpha(c byte) bool {
 	return (c >= 'a' && c <= 'z') ||
 		(c >= 'A' && c <= 'Z') ||
 		c == '_'
 }
 
-func isAlphaNumeric(c byte) {
+func isAlphaNumeric(c byte) bool {
 	return isAlpha(c) || isDigit(c)
 }
 
-func isDigit(c byte) {
+func isDigit(c byte) bool {
 	return c >= '0' && c <= '9'
 }

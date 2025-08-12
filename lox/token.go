@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 type Token struct {
 	token_type TokenType // can we just call this "type" instead of token_type? or does golang disallow this?
 	lexeme     string

@@ -64,7 +64,7 @@ func run(source string) {
 	}
 }
 
-func error(line int, message string) {
+func log_error(line int, message string) {
 	report(line, "", message)
 }
 
