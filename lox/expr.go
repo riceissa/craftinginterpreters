@@ -6,6 +6,10 @@ type Expr interface {
 	// But in order to do this, we need this garbage method that
 	// is used to "seal" the interface so that random structs
 	// won't be considered to be "implementing" this interface.
+	// (If the Expr interface had no methods, then it would be
+	// the empty interface, so then automatically every struct
+	// would be considered to be "implementing" the interface!
+	// We don't want that.)
 	garbageSealer()
 }
 

@@ -19,7 +19,7 @@ func print_expr(expr Expr) string {
 	case Unary:
 		return parenthesize(v.operator.lexeme, v.right)
 	default:
-		return "inside ast_printer.go:print ... don't know how to stringify this guy"
+		return "inside ast_printer.go:print_expr ... don't know how to stringify this guy"
 	}
 }
 
