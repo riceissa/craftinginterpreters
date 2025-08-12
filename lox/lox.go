@@ -10,6 +10,8 @@ import (
 var hadError = false
 
 func main() {
+	test_ast_printer()
+	os.Exit(0)
 	if len(os.Args) > 2 {
 		fmt.Println("Usage: jlox [script]")
 		os.Exit(64)

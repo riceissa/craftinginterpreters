@@ -1,11 +1,34 @@
 package main
 
-type expr struct {
-}type Binary struct {
+type Expr interface {
+	// Go doesn't have unions/sum types. So we create
+	// an interface (Expr) that our various structs will all "implement".
+	// But in order to do this, we need this garbage method that
+	// is used to "seal" the interface so that random structs
+	// won't be considered to be "implementing" this interface.
+	garbageSealer()
 }
+
+type Binary struct {
+	left     Expr
+	operator Token
+	right    Expr
+}
+
 type Grouping struct {
+	expression Expr
 }
+
 type Literal struct {
+	value any
 }
+
 type Unary struct {
+	operator Token
+	right    Expr
 }
+
+func (b Binary) garbageSealer()   {}
+func (g Grouping) garbageSealer() {}
+func (l Literal) garbageSealer()  {}
+func (u Unary) garbageSealer()    {}
