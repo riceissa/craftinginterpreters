@@ -1,0 +1,74 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"log"
+	"bufio"
+)
+
+var hadError = false
+
+func main() {
+	if (len(os.Args) > 2) {
+		fmt.Println("Usage: jlox [script]")
+		os.Exit(64)
+	} else if (len(os.Args) == 2) {
+		fmt.Printf("running script %v\n", os.Args[1])
+		runFile(os.Args[1])
+	} else {
+		fmt.Println("doing runPrompt()")
+		runPrompt()
+	}
+}
+
+func runFile(path string) {
+	bytes, err := os.ReadFile(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	run(string(bytes))
+
+	if (hadError) {
+		os.Exit(65)
+	}
+}
+
+func runPrompt() {
+	scanner := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Print("> ")
+		if scanner.Scan() {
+			line := scanner.Text()
+			run(line)
+			hadError = false
+		} else {
+			// encountered EOF?
+			fmt.Println("EOF detected??")
+			break
+		}
+		// not sure if the following is needed...
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func run(source string) {
+	// fmt.Println(source)
+	scanner := NewScanner(source)
+	tokens := scanner.ScanTokens()
+
+	for index, tok := range tokens {
+		fmt.Println(index, tok)
+	}
+}
+
+func error(line int, message string) {
+	report(line, "", message)
+}
+
+func report(line int, where string, message string) {
+	fmt.Fprintf(os.Stderr, "[line %d] Error %v: %v\n", line, where, message)
+	hadError = true
+}
