@@ -10,7 +10,7 @@ import (
 func interpret(expression Expr) {
 	value, err := evaluate(expression)
 	if err != nil {
-		log.Fatal(fmt.Sprintf("we have a problem when interpreting %v", expression))
+		log.Fatal(fmt.Sprintf("we have a problem when interpreting %v:\n%v", expression, err))
 	} else {
 		fmt.Println(stringify(value))
 	}
