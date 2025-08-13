@@ -5,7 +5,7 @@ import (
 )
 
 type Parser struct {
-	tokens []Token
+	tokens  []Token
 	current int
 }
 
@@ -124,7 +124,7 @@ func parse_error(token Token, message string) {
 	if token.token_type == EOF {
 		report(token.line, " at end", message)
 	} else {
-		report(token.line, " at '" + token.lexeme + "'", message)
+		report(token.line, " at '"+token.lexeme+"'", message)
 	}
 }
 
@@ -182,5 +182,5 @@ func (p *Parser) peek() Token {
 }
 
 func (p *Parser) previous() Token {
-	return p.tokens[p.current - 1]
+	return p.tokens[p.current-1]
 }

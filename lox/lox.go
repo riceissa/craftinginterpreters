@@ -66,7 +66,7 @@ func run(source string) {
 	parser := Parser{tokens: tokens}
 	expression := parser.parse()
 
-	if (hadError) {
+	if hadError {
 		return
 	}
 

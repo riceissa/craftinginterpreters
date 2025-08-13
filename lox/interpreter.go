@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
-	"fmt"
-	"strings"
 	"errors"
+	"fmt"
+	"log"
+	"strings"
 )
 
 func interpret(expression Expr) {
@@ -24,7 +24,7 @@ func stringify(object any) string {
 	case float64:
 		text := fmt.Sprintf("%v", object)
 		if strings.HasSuffix(text, ".0") {
-			text = text[0:len(text) - 2]
+			text = text[0 : len(text)-2]
 		}
 		return text
 	default:
@@ -82,10 +82,10 @@ func isTruthy(object any) bool {
 }
 
 func isEqual(a any, b any) bool {
-	if (a == nil && b == nil) {
+	if a == nil && b == nil {
 		return true
 	}
-	if (a == nil) {
+	if a == nil {
 		return false
 	}
 	// TODO: might need to use something like reflect.DeepEqual
