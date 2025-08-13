@@ -3,14 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 )
 
 func interpret(expression Expr) {
 	value, err := evaluate(expression)
 	if err != nil {
-		log.Fatal(fmt.Sprintf("we have a problem when interpreting %v:\n%v", expression, err))
+		fmt.Printf("We have a problem when interpreting %v:\n%v\n", expression, err)
 	} else {
 		fmt.Println(stringify(value))
 	}
@@ -19,90 +18,91 @@ func interpret(expression Expr) {
 func evaluate(expr Expr) (any, error) {
 	switch v := expr.(type) {
 	case Binary:
-		return interpret_binary_expr(v), nil
+		return interpret_binary_expr(v)
 	case Grouping:
-		return interpret_grouping_expr(v), nil
+		return interpret_grouping_expr(v)
 	case Literal:
-		return interpret_literal_expr(v), nil
+		return interpret_literal_expr(v)
 	case Unary:
-		return interpret_unary_expr(v), nil
+		return interpret_unary_expr(v)
 	default:
-		return nil, errors.New("don't know how to evaluate this")
+		return nil, errors.New("Don't know how to evaluate this.")
 	}
 }
 
-func interpret_binary_expr(expr Binary) any {
+func interpret_binary_expr(expr Binary) (any, error) {
 	left, _ := evaluate(expr.left)
 	right, _ := evaluate(expr.right)
 
 	switch expr.operator.token_type {
 	case GREATER:
-		checkNumberOperands(expr.operator, left, right)
-		return left.(float64) > right.(float64)
+		err := checkNumberOperands(expr.operator, left, right)
+		return left.(float64) > right.(float64), err
 	case GREATER_EQUAL:
-		checkNumberOperands(expr.operator, left, right)
-		return left.(float64) >= right.(float64)
+		err := checkNumberOperands(expr.operator, left, right)
+		return left.(float64) >= right.(float64), err
 	case LESS:
-		checkNumberOperands(expr.operator, left, right)
-		return left.(float64) < right.(float64)
+		err := checkNumberOperands(expr.operator, left, right)
+		return left.(float64) < right.(float64), err
 	case LESS_EQUAL:
-		checkNumberOperands(expr.operator, left, right)
-		return left.(float64) <= right.(float64)
+		err := checkNumberOperands(expr.operator, left, right)
+		return left.(float64) <= right.(float64), err
 	case BANG_EQUAL:
-		return !isEqual(left, right)
+		return !isEqual(left, right), nil
 	case EQUAL_EQUAL:
-		return isEqual(left, right)
+		return isEqual(left, right), nil
 	case MINUS:
-		checkNumberOperands(expr.operator, left, right)
-		return left.(float64) - right.(float64)
+		err := checkNumberOperands(expr.operator, left, right)
+		return left.(float64) - right.(float64), err
 	case PLUS:
 		leftFloat, leftIsFloat := left.(float64)
 		rightFloat, rightIsFloat := right.(float64)
 		if leftIsFloat && rightIsFloat {
-			return leftFloat + rightFloat
+			return leftFloat + rightFloat, nil
 		}
 
 		leftString, leftIsString := left.(string)
 		rightString, rightIsString := right.(string)
 		if leftIsString && rightIsString {
-			return leftString + rightString
+			return leftString + rightString, nil
 		}
 
-		return fmt.Errorf("Operands must be two numbers or two strings.", expr.operator)
+		return nil, fmt.Errorf("Operands must be two numbers or two strings.", expr.operator)
 	case SLASH:
-		checkNumberOperands(expr.operator, left, right)
-		return left.(float64) / right.(float64)
+		err := checkNumberOperands(expr.operator, left, right)
+		return left.(float64) / right.(float64), err
 	case STAR:
-		checkNumberOperands(expr.operator, left, right)
-		return left.(float64) * right.(float64)
+		err := checkNumberOperands(expr.operator, left, right)
+		return left.(float64) * right.(float64), err
 	}
 
-	// Unreachable.
-	return nil
+	return nil, fmt.Errorf("Reached the unreachable.")
 }
 
-func interpret_grouping_expr(expr Grouping) any {
-	result, _ := evaluate(expr.expression)
-	return result
+func interpret_grouping_expr(expr Grouping) (any, error) {
+	result, err := evaluate(expr.expression)
+	return result, err
 }
 
-func interpret_literal_expr(expr Literal) any {
-	return expr.value
+func interpret_literal_expr(expr Literal) (any, error) {
+	return expr.value, nil
 }
 
-func interpret_unary_expr(expr Unary) any {
-	right, _ := evaluate(expr.right)
+func interpret_unary_expr(expr Unary) (any, error) {
+	right, err := evaluate(expr.right)
+	if err != nil {
+		return nil, err
+	}
 
 	switch expr.operator.token_type {
 	case BANG:
-		return !isTruthy(right)
+		return !isTruthy(right), nil
 	case MINUS:
-		checkNumberOperand(expr.operator, right)
-		return -(right.(float64))
+		err := checkNumberOperand(expr.operator, right)
+		return -(right.(float64)), err
 	}
 
-	// Unreachable
-	return nil
+	return nil, fmt.Errorf("Reached the unreachable.")
 }
 
 func stringify(object any) string {
@@ -126,7 +126,7 @@ func checkNumberOperand(operator Token, operand any) error {
 	case float64:
 		return nil
 	default:
-		return errors.New(fmt.Sprintf("Operand %v must be a number.", operand))
+		return fmt.Errorf("Operand %q must be a number.", operand)
 	}
 }
 
@@ -136,7 +136,7 @@ func checkNumberOperands(operator Token, left any, right any) error {
 	if leftIsFloat && rightIsFloat {
 		return nil
 	}
-	return errors.New(fmt.Sprintf("Operands %v must be numbers.", operator))
+	return fmt.Errorf("Operands %q must be numbers.", operator)
 }
 
 func isTruthy(object any) bool {
