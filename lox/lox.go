@@ -63,6 +63,11 @@ func run(source string) {
 	// fmt.Println(source)
 	scanner := NewScanner(source)
 	tokens := scanner.ScanTokens()
+	// for index, tok := range tokens {
+	// 	fmt.Println(index, tok)
+	// }
+	// os.Exit(0)
+
 	parser := Parser{tokens: tokens}
 	statements := parser.parse()
 
@@ -73,9 +78,6 @@ func run(source string) {
 	interpret(statements)
 	// fmt.Println(print_expr(expression))
 
-	// for index, tok := range tokens {
-	// 	fmt.Println(index, tok)
-	// }
 }
 
 func log_error(line int, message string) {
