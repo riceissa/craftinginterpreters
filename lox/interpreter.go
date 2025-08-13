@@ -100,7 +100,18 @@ func interpret_grouping_expr(expr Grouping) any {
 }
 
 func evaluate(expr Expr) (any, error) {
-	return expr, nil // ?? idk what to do here yet
+	switch v := expr.(type) {
+	case Binary:
+		return interpret_binary_expr(v), nil
+	case Grouping:
+		return interpret_grouping_expr(v), nil
+	case Literal:
+		return interpret_literal_expr(v), nil
+	case Unary:
+		return interpret_unary_expr(v), nil
+	default:
+		return nil, errors.New("don't know how to evaluate this")
+	}
 }
 
 func interpret_binary_expr(expr Binary) any {
