@@ -12,5 +12,11 @@ type Print struct {
 	expression Expr
 }
 
+type Var struct {
+	name Token
+	initializer Expr
+}
+
 func (e Expression) stmtSealer() {}
 func (p Print) stmtSealer() {}
+func (v Var) stmtSealer() {}
