@@ -64,13 +64,13 @@ func run(source string) {
 	scanner := NewScanner(source)
 	tokens := scanner.ScanTokens()
 	parser := Parser{tokens: tokens}
-	expression := parser.parse()
+	statements := parser.parse()
 
 	if hadError {
 		return
 	}
 
-	interpret(expression)
+	interpret(statements)
 	// fmt.Println(print_expr(expression))
 
 	// for index, tok := range tokens {

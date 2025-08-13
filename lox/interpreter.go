@@ -6,12 +6,26 @@ import (
 	"strings"
 )
 
-func interpret(expression Expr) {
-	value, err := evaluate(expression)
-	if err != nil {
-		fmt.Printf("We have a problem when interpreting %v:\n%v\n", expression, err)
-	} else {
-		fmt.Println(stringify(value))
+func interpret(statements []Stmt) {
+	for _, statement := range statements {
+		err := execute(statement)
+		if err != nil {
+			runtimeError(err)
+			// fmt.Printf("We have a problem when executing %v:\n%v\n", statement, err)
+		}
+	}
+}
+
+func execute(stmt Stmt) error {
+	switch v := stmt.(type) {
+	case Print:
+		interpret_print_stmt(v)
+		return nil
+	case Expression:
+		interpret_expression_stmt(v)
+		return nil
+	default:
+		return errors.New("Don't know how to evaluate this.")
 	}
 }
 
@@ -103,6 +117,19 @@ func interpret_unary_expr(expr Unary) (any, error) {
 	}
 
 	return nil, fmt.Errorf("Reached the unreachable.")
+}
+
+func interpret_expression_stmt(stmt Expression) {
+	evaluate(stmt.expression)
+}
+
+func interpret_print_stmt(stmt Print) error {
+	value, err := evaluate(stmt.expression)
+	if err != nil {
+		return err
+	}
+	fmt.Println(stringify(value))
+	return nil
 }
 
 func stringify(object any) string {
