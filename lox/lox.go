@@ -8,6 +8,7 @@ import (
 )
 
 var hadError = false
+var hadRuntimeError = false
 
 func main() {
 	if len(os.Args) > 2 {
@@ -31,6 +32,10 @@ func runFile(path string) {
 
 	if hadError {
 		os.Exit(65)
+	}
+
+	if hadRuntimeError {
+		os.Exit(70)
 	}
 }
 
@@ -65,7 +70,8 @@ func run(source string) {
 		return
 	}
 
-	fmt.Println(print_expr(expression))
+	interpret(expression)
+	// fmt.Println(print_expr(expression))
 
 	// for index, tok := range tokens {
 	// 	fmt.Println(index, tok)
@@ -79,4 +85,10 @@ func log_error(line int, message string) {
 func report(line int, where string, message string) {
 	fmt.Fprintf(os.Stderr, "[line %d] Error %v: %v\n", line, where, message)
 	hadError = true
+}
+
+func runtimeError(e error) {
+	// TODO: our error type needs to have the token/line number to be able to report it.
+	fmt.Printf("%v\n[line ??]\n", e)
+	hadRuntimeError = true
 }
