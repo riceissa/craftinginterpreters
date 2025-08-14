@@ -20,14 +20,11 @@ func interpret(statements []Stmt) {
 func execute(stmt Stmt) error {
 	switch v := stmt.(type) {
 	case Print:
-		interpret_print_stmt(v)
-		return nil
+		return interpret_print_stmt(v)
 	case Expression:
-		interpret_expression_stmt(v)
-		return nil
+		return interpret_expression_stmt(v)
 	case Var:
-		interpret_var_stmt(v)
-		return nil
+		return interpret_var_stmt(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}
@@ -164,8 +161,9 @@ func interpret_unary_expr(expr Unary) (any, error) {
 	return nil, fmt.Errorf("Reached the unreachable.")
 }
 
-func interpret_expression_stmt(stmt Expression) {
-	evaluate(stmt.expression)
+func interpret_expression_stmt(stmt Expression) error {
+	_, err := evaluate(stmt.expression)
+	return err
 }
 
 func interpret_print_stmt(stmt Print) error {
