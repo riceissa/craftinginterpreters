@@ -30,7 +30,7 @@ func execute(stmt Stmt) error {
 		interpret_var_stmt(v)
 		return nil
 	default:
-		return errors.New("Don't know how to evaluate this.")
+		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}
 }
 
@@ -65,7 +65,7 @@ func evaluate(expr Expr) (any, error) {
 	case Variable:
 		return interpret_variable_expr(v)
 	default:
-		return nil, errors.New("Don't know how to evaluate this.")
+		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
 	}
 }
 

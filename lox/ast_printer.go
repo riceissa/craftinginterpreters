@@ -19,7 +19,7 @@ func print_expr(expr Expr) string {
 	case Unary:
 		return parenthesize(v.operator.lexeme, v.right)
 	default:
-		return "inside ast_printer.go:print_expr ... don't know how to stringify this guy"
+		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
 	}
 }
 

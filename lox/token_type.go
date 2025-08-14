@@ -135,6 +135,6 @@ func (t TokenType) String() string {
 	case EOF:
 		return "EOF"
 	default:
-		return fmt.Sprintf("Unknown TokenType %d", int(t))
+		panic(fmt.Sprintf("Unreachable. The TokenType has value %d, and we don't handle that case.", int(t)))
 	}
 }
