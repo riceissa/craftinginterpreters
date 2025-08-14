@@ -11,8 +11,9 @@ func interpret(statements []Stmt) {
 	for _, statement := range statements {
 		err := execute(statement)
 		if err != nil {
-			runtimeError(RuntimeError{})
-			// fmt.Printf("We have a problem when executing %v:\n%v\n", statement, err)
+			if e, ok := err.(RuntimeError); ok {
+				runtimeError(e)
+			}
 		}
 	}
 }
