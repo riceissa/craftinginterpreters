@@ -1,7 +1,7 @@
 package main
 
 type Stmt interface {
-	stmtSealer()
+	sealStmt()
 }
 
 type Expression struct {
@@ -17,6 +17,6 @@ type Var struct {
 	initializer Expr
 }
 
-func (e Expression) stmtSealer() {}
-func (p Print) stmtSealer()      {}
-func (v Var) stmtSealer()        {}
+func (e Expression) sealStmt() {}
+func (p Print) sealStmt()      {}
+func (v Var) sealStmt()        {}

@@ -10,7 +10,7 @@ type Expr interface {
 	// interface, so then automatically every struct would be
 	// considered to be "implementing" the interface!  We don't want
 	// that.)
-	exprSealer()
+	sealExpr()
 }
 
 type Binary struct {
@@ -36,8 +36,8 @@ type Variable struct {
 	name Token
 }
 
-func (b Binary) exprSealer()   {}
-func (g Grouping) exprSealer() {}
-func (l Literal) exprSealer()  {}
-func (u Unary) exprSealer()    {}
-func (v Variable) exprSealer() {}
+func (b Binary) sealExpr()   {}
+func (g Grouping) sealExpr() {}
+func (l Literal) sealExpr()  {}
+func (u Unary) sealExpr()    {}
+func (v Variable) sealExpr() {}
