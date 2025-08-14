@@ -10,6 +10,11 @@ import (
 var hadError = false
 var hadRuntimeError = false
 
+type RuntimeError struct {
+	token Token
+	message string
+}
+
 func main() {
 	if len(os.Args) > 2 {
 		fmt.Println("Usage: jlox [script]")
@@ -89,8 +94,11 @@ func report(line int, where string, message string) {
 	hadError = true
 }
 
-func runtimeError(e error) {
-	// TODO: our error type needs to have the token/line number to be able to report it.
-	fmt.Printf("%v\n[line ??]\n", e)
+func (e RuntimeError) Error() string {
+	return fmt.Sprintf("[line %v] %v", e.token.line, e.message)
+}
+
+func runtimeError(e RuntimeError) {
+	fmt.Fprintln(os.Stderr, e.Error())
 	hadRuntimeError = true
 }

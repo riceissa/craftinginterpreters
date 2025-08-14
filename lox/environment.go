@@ -24,6 +24,5 @@ func (e *Environment) get(name Token) (any, error) {
 		return v, nil
 	}
 
-	// TODO: maybe use runtimeError here instead?
-	return nil, fmt.Errorf("Undefined variable %q.", name.lexeme)
+	return nil, RuntimeError{name, fmt.Sprintf("Undefined variable %q.", name.lexeme)}
 }

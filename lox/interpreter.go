@@ -11,7 +11,7 @@ func interpret(statements []Stmt) {
 	for _, statement := range statements {
 		err := execute(statement)
 		if err != nil {
-			runtimeError(err)
+			runtimeError(RuntimeError{})
 			// fmt.Printf("We have a problem when executing %v:\n%v\n", statement, err)
 		}
 	}
@@ -60,7 +60,7 @@ func (e *Environment) assign(name Token, value any) error {
 		return nil
 	}
 
-	return fmt.Errorf("Undefined variable %q; %q", name.lexeme, name)
+	return RuntimeError{name, fmt.Sprintf("Undefined variable %q; %q", name.lexeme)}
 }
 
 func interpret_variable_expr(expr Variable) (any, error) {
@@ -123,7 +123,7 @@ func interpret_binary_expr(expr Binary) (any, error) {
 			return leftString + rightString, nil
 		}
 
-		return nil, fmt.Errorf("Operands must be two numbers or two strings.", expr.operator)
+		return nil, RuntimeError{expr.operator, "Operands must be two numbers or two strings."}
 	case SLASH:
 		err := checkNumberOperands(expr.operator, left, right)
 		return left.(float64) / right.(float64), err
@@ -132,7 +132,7 @@ func interpret_binary_expr(expr Binary) (any, error) {
 		return left.(float64) * right.(float64), err
 	}
 
-	return nil, fmt.Errorf("Reached the unreachable.")
+	panic("Unreachable")
 }
 
 func interpret_grouping_expr(expr Grouping) (any, error) {
@@ -158,7 +158,7 @@ func interpret_unary_expr(expr Unary) (any, error) {
 		return -(right.(float64)), err
 	}
 
-	return nil, fmt.Errorf("Reached the unreachable.")
+	panic("Unreachable")
 }
 
 func interpret_expression_stmt(stmt Expression) error {
@@ -196,7 +196,7 @@ func checkNumberOperand(operator Token, operand any) error {
 	case float64:
 		return nil
 	default:
-		return fmt.Errorf("Operand %q must be a number.", operand)
+		return RuntimeError{operator, "Operand must be a number."}
 	}
 }
 
@@ -206,7 +206,7 @@ func checkNumberOperands(operator Token, left any, right any) error {
 	if leftIsFloat && rightIsFloat {
 		return nil
 	}
-	return fmt.Errorf("Operands %q must be numbers.", operator)
+	return RuntimeError{operator, "Operands must be numbers."}
 }
 
 func isTruthy(object any) bool {
