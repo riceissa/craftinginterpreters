@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 )
 
 type Parser struct {
@@ -12,32 +13,79 @@ type Parser struct {
 func (p *Parser) parse() []Stmt {
 	statements := []Stmt{}
 	for !p.isAtEnd() {
-		statements = append(statements, p.statement())
+		stmt, err := p.declaration()
+		if err != nil {
+			fmt.Printf("error in parse(): %v", err)
+		}
+		statements = append(statements, stmt)
 	}
 	return statements
 }
 
-func (p *Parser) statement() Stmt {
+func (p *Parser) statement() (Stmt, error) {
 	if p.match(PRINT) {
 		return p.printStatement()
 	}
 	return p.expressionStatement()
 }
 
-func (p *Parser) printStatement() Stmt {
+func (p *Parser) printStatement() (Stmt, error) {
 	value := p.expression()
-	p.consume(SEMICOLON, "Expect ';' after value.")
-	return Print{value}
+	_, err := p.consume(SEMICOLON, "Expect ';' after value.")
+	if err != nil {
+		return nil, err
+	}
+	return Print{value}, nil
 }
 
-func (p *Parser) expressionStatement() Stmt {
+func (p *Parser) expressionStatement() (Stmt, error) {
 	expr := p.expression()
-	p.consume(SEMICOLON, "Expect ';' after expression.")
-	return Expression{expr}
+	_, err := p.consume(SEMICOLON, "Expect ';' after expression.")
+	if err != nil {
+		return nil, err
+	}
+	return Expression{expr}, nil
 }
 
 func (p *Parser) expression() Expr {
 	return p.equality()
+}
+
+func (p *Parser) declaration() (Stmt, error) {
+	if p.match(VAR) {
+		result, err := p.varDeclaration()
+		if err != nil {
+			p.synchronize()
+			return nil, err
+		} else {
+			return result, nil
+		}
+	}
+	result, err := p.statement()
+	if err != nil {
+		p.synchronize()
+		return nil, err
+	} else {
+		return result, nil
+	}
+}
+
+func (p *Parser) varDeclaration() (Stmt, error) {
+	name, err := p.consume(IDENTIFIER, "Expect variable name.")
+	if err != nil {
+		return nil, err
+	}
+
+	var initializer Expr
+	if p.match(EQUAL) {
+		initializer = p.expression()
+	}
+
+	_, err = p.consume(SEMICOLON, "Expect ';' after variable declaration.")
+	if err != nil {
+		return nil, err
+	}
+	return Var{name, initializer}, nil
 }
 
 func (p *Parser) equality() Expr {
@@ -111,6 +159,10 @@ func (p *Parser) primary() Expr {
 
 	if p.match(NUMBER, STRING) {
 		return Literal{p.previous().literal}
+	}
+
+	if p.match(IDENTIFIER) {
+		return Variable{p.previous()}
 	}
 
 	if p.match(LEFT_PAREN) {

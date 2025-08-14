@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var environment Environment
+
 func interpret(statements []Stmt) {
 	for _, statement := range statements {
 		err := execute(statement)
@@ -24,9 +26,28 @@ func execute(stmt Stmt) error {
 	case Expression:
 		interpret_expression_stmt(v)
 		return nil
+	case Var:
+		interpret_var_stmt(v)
+		return nil
 	default:
 		return errors.New("Don't know how to evaluate this.")
 	}
+}
+
+func interpret_var_stmt(stmt Var) error {
+	var value any
+	var err error
+	if stmt.initializer != nil {
+		value, err = evaluate(stmt.initializer)
+		return err
+	}
+
+	environment.define(stmt.name.lexeme, value)
+	return nil
+}
+
+func interpret_variable_expr(expr Variable) (any, error) {
+	return environment.get(expr.name)
 }
 
 func evaluate(expr Expr) (any, error) {
