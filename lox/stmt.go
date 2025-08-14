@@ -13,10 +13,10 @@ type Print struct {
 }
 
 type Var struct {
-	name Token
+	name        Token
 	initializer Expr
 }
 
 func (e Expression) stmtSealer() {}
-func (p Print) stmtSealer() {}
-func (v Var) stmtSealer() {}
+func (p Print) stmtSealer()      {}
+func (v Var) stmtSealer()        {}
