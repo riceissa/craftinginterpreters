@@ -47,8 +47,27 @@ func (p *Parser) expressionStatement() (Stmt, error) {
 	return Expression{expr}, nil
 }
 
+func (p *Parser) assignment() Expr {
+	expr := p.equality()
+
+	if p.match(EQUAL) {
+		equals := p.previous()
+		value := p.assignment()
+
+		switch v := expr.(type) {
+		case Variable:
+			var name Token = v.name
+			return Assign{name, value}
+		default:
+			fmt.Printf("Invalid assignment target: %q", equals)
+		}
+	}
+
+	return expr
+}
+
 func (p *Parser) expression() Expr {
-	return p.equality()
+	return p.assignment()
 }
 
 func (p *Parser) declaration() (Stmt, error) {

@@ -13,6 +13,11 @@ type Expr interface {
 	sealExpr()
 }
 
+type Assign struct {
+	name Token
+	value Expr
+}
+
 type Binary struct {
 	left     Expr
 	operator Token
@@ -41,3 +46,4 @@ func (g Grouping) sealExpr() {}
 func (l Literal) sealExpr()  {}
 func (u Unary) sealExpr()    {}
 func (v Variable) sealExpr() {}
+func (a Assign) sealExpr()   {}

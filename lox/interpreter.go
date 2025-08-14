@@ -47,6 +47,25 @@ func interpret_var_stmt(stmt Var) error {
 	return nil
 }
 
+func interpret_assing_expr(expr Assign) (any, error) {
+	value, err := evaluate(expr.value)
+	if err != nil {
+		return nil, err
+	}
+	err = environment.assign(expr.name, value)
+	return value, err
+}
+
+func (e *Environment) assign(name Token, value any) error {
+	_, ok := e.values[name.lexeme]
+	if ok {
+		e.values[name.lexeme] = value
+		return nil
+	}
+
+	return fmt.Errorf("Undefined variable %q; %q", name.lexeme, name)
+}
+
 func interpret_variable_expr(expr Variable) (any, error) {
 	return environment.get(expr.name)
 }
@@ -63,6 +82,8 @@ func evaluate(expr Expr) (any, error) {
 		return interpret_unary_expr(v)
 	case Variable:
 		return interpret_variable_expr(v)
+	case Assign:
+		return interpret_assing_expr(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
 	}
