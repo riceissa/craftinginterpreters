@@ -36,8 +36,8 @@ func (e *Environment) execute(stmt Stmt) error {
 func (e *Environment) interpret_block_stmt(stmt Block) error {
 	innerEnv := NewEnvironment()
 	innerEnv.enclosing = e
-	innerEnv.execute_block(stmt.statements)
-	return nil
+	err := innerEnv.execute_block(stmt.statements)
+	return err
 }
 
 func (e *Environment) execute_block(statements []Stmt) error {
