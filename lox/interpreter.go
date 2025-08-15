@@ -36,13 +36,13 @@ func (e *Environment) execute(stmt Stmt) error {
 func (e *Environment) interpret_block_stmt(stmt Block) error {
 	env := NewEnvironment()
 	env.enclosing = e
-	execute_block(stmt.statements, env)
+	env.execute_block(stmt.statements)
 	return nil
 }
 
-func execute_block(statements []Stmt, environment Environment) error {
+func (e *Environment) execute_block(statements []Stmt) error {
 	for _, statement := range statements {
-		err := environment.execute(statement)
+		err := e.execute(statement)
 		if err != nil {
 			return err
 		}
