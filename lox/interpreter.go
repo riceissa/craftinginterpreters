@@ -34,9 +34,9 @@ func (e *Environment) execute(stmt Stmt) error {
 }
 
 func (e *Environment) interpret_block_stmt(stmt Block) error {
-	env := NewEnvironment()
-	env.enclosing = e
-	env.execute_block(stmt.statements)
+	innerEnv := NewEnvironment()
+	innerEnv.enclosing = e
+	innerEnv.execute_block(stmt.statements)
 	return nil
 }
 
