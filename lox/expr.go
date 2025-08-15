@@ -14,7 +14,7 @@ type Expr interface {
 }
 
 type Assign struct {
-	name Token
+	name  Token
 	value Expr
 }
 

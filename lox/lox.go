@@ -11,7 +11,7 @@ var hadError = false
 var hadRuntimeError = false
 
 type RuntimeError struct {
-	token Token
+	token   Token
 	message string
 }
 
