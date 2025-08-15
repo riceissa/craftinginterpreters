@@ -80,7 +80,7 @@ func run(source string) {
 		return
 	}
 
-	interpret(statements)
+	environment.interpret(statements)
 	// fmt.Println(print_expr(expression))
 
 }

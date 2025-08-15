@@ -4,6 +4,10 @@ type Stmt interface {
 	sealStmt()
 }
 
+type Block struct {
+	statements []Stmt
+}
+
 type Expression struct {
 	expression Expr
 }
@@ -17,6 +21,7 @@ type Var struct {
 	initializer Expr
 }
 
+func (b Block) sealStmt() {}
 func (e Expression) sealStmt() {}
 func (p Print) sealStmt()      {}
 func (v Var) sealStmt()        {}

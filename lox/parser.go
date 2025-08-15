@@ -26,7 +26,29 @@ func (p *Parser) statement() (Stmt, error) {
 	if p.match(PRINT) {
 		return p.printStatement()
 	}
+	if p.match(LEFT_BRACE) {
+		b, err := p.block()
+		if err != nil {
+			return nil, err
+		}
+		return Block{b}, nil
+	}
 	return p.expressionStatement()
+}
+
+func (p *Parser) block() ([]Stmt, error) {
+	var statements []Stmt
+
+	for !p.check(RIGHT_BRACE) && !p.isAtEnd() {
+		decl, err := p.declaration()
+		if err != nil {
+			return nil, err
+		}
+		statements = append(statements, decl)
+	}
+
+	p.consume(RIGHT_BRACE, "Expect '}' after block.")
+	return statements, nil
 }
 
 func (p *Parser) printStatement() (Stmt, error) {

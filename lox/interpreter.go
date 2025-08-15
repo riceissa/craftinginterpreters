@@ -7,18 +7,18 @@ import (
 
 var environment = NewEnvironment()
 
-func interpret(statements []Stmt) {
+func (e *Environment) interpret(statements []Stmt) {
 	for _, statement := range statements {
-		err := execute(statement)
+		err := e.execute(statement)
 		if err != nil {
-			if e, ok := err.(RuntimeError); ok {
-				runtimeError(e)
+			if rte, ok := err.(RuntimeError); ok {
+				runtimeError(rte)
 			}
 		}
 	}
 }
 
-func execute(stmt Stmt) error {
+func (e *Environment) execute(stmt Stmt) error {
 	switch v := stmt.(type) {
 	case Print:
 		return interpret_print_stmt(v)
@@ -26,9 +26,28 @@ func execute(stmt Stmt) error {
 		return interpret_expression_stmt(v)
 	case Var:
 		return interpret_var_stmt(v)
+	case Block:
+		return e.interpret_block_stmt(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}
+}
+
+func (e *Environment) interpret_block_stmt(stmt Block) error {
+	env := NewEnvironment()
+	env.enclosing = e
+	execute_block(stmt.statements, env)
+	return nil
+}
+
+func execute_block(statements []Stmt, environment Environment) error {
+	for _, statement := range statements {
+		err := environment.execute(statement)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func interpret_var_stmt(stmt Var) error {
@@ -58,6 +77,11 @@ func (e *Environment) assign(name Token, value any) error {
 	_, ok := e.values[name.lexeme]
 	if ok {
 		e.values[name.lexeme] = value
+		return nil
+	}
+
+	if e.enclosing != nil {
+		e.enclosing.assign(name, value)
 		return nil
 	}
 
