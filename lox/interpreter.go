@@ -21,11 +21,11 @@ func (e *Environment) interpret(statements []Stmt) {
 func (e *Environment) execute(stmt Stmt) error {
 	switch v := stmt.(type) {
 	case Print:
-		return interpret_print_stmt(v)
+		return e.interpret_print_stmt(v)
 	case Expression:
-		return interpret_expression_stmt(v)
+		return e.interpret_expression_stmt(v)
 	case Var:
-		return interpret_var_stmt(v)
+		return e.interpret_var_stmt(v)
 	case Block:
 		return e.interpret_block_stmt(v)
 	default:
@@ -50,26 +50,26 @@ func execute_block(statements []Stmt, environment Environment) error {
 	return nil
 }
 
-func interpret_var_stmt(stmt Var) error {
+func (e *Environment) interpret_var_stmt(stmt Var) error {
 	var value any
 	var err error
 	if stmt.initializer != nil {
-		value, err = evaluate(stmt.initializer)
+		value, err = e.evaluate(stmt.initializer)
 		if err != nil {
 			return err
 		}
 	}
 
-	environment.define(stmt.name.lexeme, value)
+	e.define(stmt.name.lexeme, value)
 	return nil
 }
 
-func interpret_assing_expr(expr Assign) (any, error) {
-	value, err := evaluate(expr.value)
+func (e *Environment) interpret_assing_expr(expr Assign) (any, error) {
+	value, err := e.evaluate(expr.value)
 	if err != nil {
 		return nil, err
 	}
-	err = environment.assign(expr.name, value)
+	err = e.assign(expr.name, value)
 	return value, err
 }
 
@@ -88,32 +88,32 @@ func (e *Environment) assign(name Token, value any) error {
 	return RuntimeError{name, fmt.Sprintf("Undefined variable %q; %q", name.lexeme)}
 }
 
-func interpret_variable_expr(expr Variable) (any, error) {
-	return environment.get(expr.name)
+func (e *Environment) interpret_variable_expr(expr Variable) (any, error) {
+	return e.get(expr.name)
 }
 
-func evaluate(expr Expr) (any, error) {
+func (e *Environment) evaluate(expr Expr) (any, error) {
 	switch v := expr.(type) {
 	case Binary:
-		return interpret_binary_expr(v)
+		return e.interpret_binary_expr(v)
 	case Grouping:
-		return interpret_grouping_expr(v)
+		return e.interpret_grouping_expr(v)
 	case Literal:
 		return interpret_literal_expr(v)
 	case Unary:
-		return interpret_unary_expr(v)
+		return e.interpret_unary_expr(v)
 	case Variable:
-		return interpret_variable_expr(v)
+		return e.interpret_variable_expr(v)
 	case Assign:
-		return interpret_assing_expr(v)
+		return e.interpret_assing_expr(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
 	}
 }
 
-func interpret_binary_expr(expr Binary) (any, error) {
-	left, _ := evaluate(expr.left)
-	right, _ := evaluate(expr.right)
+func (e *Environment) interpret_binary_expr(expr Binary) (any, error) {
+	left, _ := e.evaluate(expr.left)
+	right, _ := e.evaluate(expr.right)
 
 	switch expr.operator.token_type {
 	case GREATER:
@@ -160,8 +160,8 @@ func interpret_binary_expr(expr Binary) (any, error) {
 	panic("Unreachable")
 }
 
-func interpret_grouping_expr(expr Grouping) (any, error) {
-	result, err := evaluate(expr.expression)
+func (e *Environment) interpret_grouping_expr(expr Grouping) (any, error) {
+	result, err := e.evaluate(expr.expression)
 	return result, err
 }
 
@@ -169,8 +169,8 @@ func interpret_literal_expr(expr Literal) (any, error) {
 	return expr.value, nil
 }
 
-func interpret_unary_expr(expr Unary) (any, error) {
-	right, err := evaluate(expr.right)
+func (e *Environment) interpret_unary_expr(expr Unary) (any, error) {
+	right, err := e.evaluate(expr.right)
 	if err != nil {
 		return nil, err
 	}
@@ -186,13 +186,13 @@ func interpret_unary_expr(expr Unary) (any, error) {
 	panic("Unreachable")
 }
 
-func interpret_expression_stmt(stmt Expression) error {
-	_, err := evaluate(stmt.expression)
+func (e *Environment) interpret_expression_stmt(stmt Expression) error {
+	_, err := e.evaluate(stmt.expression)
 	return err
 }
 
-func interpret_print_stmt(stmt Print) error {
-	value, err := evaluate(stmt.expression)
+func (e *Environment) interpret_print_stmt(stmt Print) error {
+	value, err := e.evaluate(stmt.expression)
 	if err != nil {
 		return err
 	}
