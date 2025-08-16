@@ -13,7 +13,7 @@ type Expression struct {
 }
 
 type If struct {
-	condition Expr
+	condition  Expr
 	thenBranch Stmt
 	elseBranch Stmt
 }
@@ -27,8 +27,8 @@ type Var struct {
 	initializer Expr
 }
 
-func (b Block) sealStmt() {}
+func (b Block) sealStmt()      {}
 func (e Expression) sealStmt() {}
-func (i If) sealStmt() {}
+func (i If) sealStmt()         {}
 func (p Print) sealStmt()      {}
 func (v Var) sealStmt()        {}

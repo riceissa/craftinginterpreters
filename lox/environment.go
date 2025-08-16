@@ -6,13 +6,13 @@ import (
 
 type Environment struct {
 	enclosing *Environment
-	values map[string]any
+	values    map[string]any
 }
 
 func NewEnvironment() Environment {
 	return Environment{
 		enclosing: nil,
-		values: make(map[string]any),
+		values:    make(map[string]any),
 	}
 }
 

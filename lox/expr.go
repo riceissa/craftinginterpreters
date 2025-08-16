@@ -33,9 +33,9 @@ type Literal struct {
 }
 
 type Logical struct {
-	left Expr
+	left     Expr
 	operator Token
-	right Expr
+	right    Expr
 }
 
 type Unary struct {
