@@ -50,7 +50,7 @@ func (p *Parser) forStatement() (Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
-	var initializer Stmt
+	var initializer Stmt = nil
 	if p.match(SEMICOLON) {
 		// do nothing
 	} else if p.match(VAR) {
@@ -65,7 +65,7 @@ func (p *Parser) forStatement() (Stmt, error) {
 		}
 	}
 
-	var condition Expr
+	var condition Expr = nil
 	if !p.check(SEMICOLON) {
 		condition = p.expression()
 	}
@@ -76,7 +76,7 @@ func (p *Parser) forStatement() (Stmt, error) {
 
 	var increment Expr = nil
 	if !p.check(RIGHT_PAREN) {
-		increment =  p.expression()
+		increment = p.expression()
 	}
 	_, err = p.consume(RIGHT_PAREN, "Expect ')' after for clauses.")
 	if err != nil {

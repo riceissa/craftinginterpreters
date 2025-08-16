@@ -11,7 +11,14 @@ jlox: $(SRCS)
 	go build -gcflags "all=-N -l" -o $@ ./lox
 
 tags: $(SRCS)
-	gotags -f $@ -R ./lox
+	ctags -R ./lox
+# For some reason gotags hardcodes the line numbers in the tags file, so the
+# tags file is very brittle (e.g. if you add some text before the line that you
+# want to jump to, you just jump to the line number where the tag *used* to be,
+# rather than where it is now), which incentivizes frequent regeneration. I've
+# switched to ctags for now, which supports Go and uses regex-based tags which
+# are more stable.
+#	gotags -f $@ -R ./lox
 
 .PHONY: clean
 clean:
