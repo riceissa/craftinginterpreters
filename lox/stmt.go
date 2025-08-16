@@ -29,7 +29,7 @@ type Var struct {
 
 type While struct {
 	condition Expr
-	body Stmt
+	body      Stmt
 }
 
 func (b Block) sealStmt()      {}
