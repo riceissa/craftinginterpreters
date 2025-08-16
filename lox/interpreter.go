@@ -49,9 +49,28 @@ func (e *Environment) execute(stmt Stmt) error {
 		return e.interpret_var_stmt(v)
 	case Block:
 		return e.interpret_block_stmt(v)
+	case While:
+		return e.interpret_while_stmt(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}
+}
+
+func (e *Environment) interpret_while_stmt(stmt While) error {
+	for {
+		cond, err := e.evaluate(stmt.condition)
+		if err != nil {
+			return err
+		}
+		if !isTruthy(cond) {
+			break
+		}
+		err = e.execute(stmt.body)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (e *Environment) interpret_block_stmt(stmt Block) error {

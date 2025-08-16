@@ -27,8 +27,14 @@ type Var struct {
 	initializer Expr
 }
 
+type While struct {
+	condition Expr
+	body Stmt
+}
+
 func (b Block) sealStmt()      {}
 func (e Expression) sealStmt() {}
 func (i If) sealStmt()         {}
 func (p Print) sealStmt()      {}
 func (v Var) sealStmt()        {}
+func (w While) sealStmt()      {}
