@@ -12,6 +12,12 @@ type Expression struct {
 	expression Expr
 }
 
+type If struct {
+	condition Expr
+	thenBranch Stmt
+	elseBranch Stmt
+}
+
 type Print struct {
 	expression Expr
 }
@@ -23,5 +29,6 @@ type Var struct {
 
 func (b Block) sealStmt() {}
 func (e Expression) sealStmt() {}
+func (i If) sealStmt() {}
 func (p Print) sealStmt()      {}
 func (v Var) sealStmt()        {}

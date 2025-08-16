@@ -18,8 +18,29 @@ func (e *Environment) interpret(statements []Stmt) {
 	}
 }
 
+func (e *Environment) interpret_logical_expr(expr Logical) (any, error) {
+	left, err := e.evaluate(expr.left)
+	if err != nil {
+		return nil, err
+	}
+
+	if expr.operator.token_type == OR {
+		if isTruthy(left) {
+			return left, nil
+		}
+	} else {
+		if !isTruthy(left) {
+			return left, nil
+		}
+	}
+
+	return e.evaluate(expr.right)
+}
+
 func (e *Environment) execute(stmt Stmt) error {
 	switch v := stmt.(type) {
+	case If:
+		return e.interpret_if_stmt(v)
 	case Print:
 		return e.interpret_print_stmt(v)
 	case Expression:
@@ -38,6 +59,25 @@ func (e *Environment) interpret_block_stmt(stmt Block) error {
 	innerEnv.enclosing = e
 	err := innerEnv.execute_block(stmt.statements)
 	return err
+}
+
+func (e *Environment) interpret_if_stmt(stmt If) error {
+	cond, err := e.evaluate(stmt.condition)
+	if err != nil {
+		return err
+	}
+	if isTruthy(cond) {
+		err := e.execute(stmt.thenBranch)
+		if err != nil {
+			return err
+		}
+	} else if stmt.elseBranch != nil { // TODO: this check might be bad, because I don't think elseBranch will be nil, it will be an empty Stmt
+		err := e.execute(stmt.elseBranch)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (e *Environment) execute_block(statements []Stmt) error {
@@ -94,6 +134,8 @@ func (e *Environment) interpret_variable_expr(expr Variable) (any, error) {
 
 func (e *Environment) evaluate(expr Expr) (any, error) {
 	switch v := expr.(type) {
+	case Logical:
+		return e.interpret_logical_expr(v)
 	case Binary:
 		return e.interpret_binary_expr(v)
 	case Grouping:

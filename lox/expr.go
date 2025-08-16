@@ -32,6 +32,12 @@ type Literal struct {
 	value any
 }
 
+type Logical struct {
+	left Expr
+	operator Token
+	right Expr
+}
+
 type Unary struct {
 	operator Token
 	right    Expr
@@ -44,6 +50,7 @@ type Variable struct {
 func (b Binary) sealExpr()   {}
 func (g Grouping) sealExpr() {}
 func (l Literal) sealExpr()  {}
+func (l Logical) sealExpr()  {}
 func (u Unary) sealExpr()    {}
 func (v Variable) sealExpr() {}
 func (a Assign) sealExpr()   {}

@@ -23,6 +23,9 @@ func (p *Parser) parse() []Stmt {
 }
 
 func (p *Parser) statement() (Stmt, error) {
+	if p.match(IF) {
+		return p.ifStatement()
+	}
 	if p.match(PRINT) {
 		return p.printStatement()
 	}
@@ -34,6 +37,26 @@ func (p *Parser) statement() (Stmt, error) {
 		return Block{b}, nil
 	}
 	return p.expressionStatement()
+}
+
+func (p *Parser) ifStatement() (If, error) {
+	p.consume(LEFT_PAREN, "Expect '(' after 'if'.")
+	condition := p.expression()
+	p.consume(RIGHT_PAREN, "Expect ')' after if condition.")
+
+	thenBranch, err := p.statement()
+	if err != nil {
+		return If{}, err
+	}
+	var elseBranch Stmt = nil
+	if p.match(ELSE) {
+		elseBranch, err = p.statement()
+		if err != nil {
+			return If{}, err
+		}
+	}
+
+	return If{condition, thenBranch, elseBranch}, nil
 }
 
 func (p *Parser) block() ([]Stmt, error) {
@@ -69,8 +92,32 @@ func (p *Parser) expressionStatement() (Stmt, error) {
 	return Expression{expr}, nil
 }
 
-func (p *Parser) assignment() Expr {
+func (p *Parser) or() Expr {
+	expr := p.and()
+
+	for p.match(OR) {
+		operator := p.previous()
+		right := p.and()
+		expr = Logical{expr, operator, right}
+	}
+
+	return expr
+}
+
+func (p *Parser) and() Expr {
 	expr := p.equality()
+
+	for p.match(AND) {
+		operator := p.previous()
+		right := p.equality()
+		expr = Logical{expr, operator, right}
+	}
+
+	return expr
+}
+
+func (p *Parser) assignment() Expr {
+	expr := p.or()
 
 	if p.match(EQUAL) {
 		equals := p.previous()
