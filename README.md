@@ -10,5 +10,7 @@ what the book uses, for the first part) to Go. The biggest differences are:
 2. I don't understand/like the visitor pattern
    ([I am not the only one](https://grugbrain.dev/#grug-on-visitor-pattern)),
    so instead I use switch cases to decide which function to call.
+3. I didn't do the meta-programming thing from GenerateAst.java, since Go
+   doesn't have as much boilerplate when defining structs.
 
 So far, everything up to and including Chapter 9 is done.
