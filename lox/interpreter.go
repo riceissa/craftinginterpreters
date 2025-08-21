@@ -270,6 +270,15 @@ func (i *Interpreter) interpret_binary_expr(expr Binary) (any, error) {
 	left, _ := i.evaluate(expr.left)
 	right, _ := i.evaluate(expr.right)
 
+	leftRV, leftIsRV := left.(*ReturnedValue)
+	if leftIsRV {
+		left = leftRV.value
+	}
+	rightRV, rightIsRV := right.(*ReturnedValue)
+	if rightIsRV {
+		right = rightRV.value
+	}
+
 	switch expr.operator.token_type {
 	case GREATER:
 		err := checkNumberOperands(expr.operator, left, right)
@@ -370,6 +379,10 @@ func (i *Interpreter) interpret_return_stmt(stmt Return) (*ReturnedValue, error)
 func stringify(object any) string {
 	if object == nil {
 		return "nil"
+	}
+	objectAsRV, objectIsRV := object.(*ReturnedValue)
+	if objectIsRV {
+		object = objectAsRV.value
 	}
 	switch object.(type) {
 	case float64:

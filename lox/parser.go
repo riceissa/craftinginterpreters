@@ -52,7 +52,7 @@ func (p *Parser) returnStatement() (Stmt, error) {
 	keyword := p.previous()
 	var value Expr
 	var err error
-	if p.check(SEMICOLON) {
+	if !p.check(SEMICOLON) {
 		value, err = p.expression()
 		if err != nil {
 			return nil, err
