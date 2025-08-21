@@ -28,6 +28,11 @@ type Print struct {
 	expression Expr
 }
 
+type Return struct {
+	keyword Token
+	value Expr
+}
+
 type Var struct {
 	name        Token
 	initializer Expr

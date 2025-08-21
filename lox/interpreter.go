@@ -117,6 +117,8 @@ func (i *Interpreter) execute(stmt Stmt) error {
 		return i.interpret_while_stmt(v)
 	case Function:
 		return i.interpret_function_stmt(v)
+	case Return:
+		return i.interpret_return_stmt(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}
@@ -332,6 +334,14 @@ func (i *Interpreter) interpret_print_stmt(stmt Print) error {
 	}
 	fmt.Println(stringify(value))
 	return nil
+}
+
+func (i *Interpreter) interpret_return_stmt(stmt Return) (any, error) {
+	var value any = nil
+	if stmt.value != nil {
+		value = i.evaluate(stmt.value)
+	}
+	return Return{value}
 }
 
 func stringify(object any) string {
