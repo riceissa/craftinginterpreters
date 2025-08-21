@@ -83,7 +83,7 @@ func (i *Interpreter) interpret_call_expr(expr Call) (any, error) {
 		)}
 	}
 
-	return function.Call(i, arguments), nil
+	return function.Call(i, arguments)
 }
 
 func (i *Interpreter) interpret_logical_expr(expr Logical) (any, error) {
