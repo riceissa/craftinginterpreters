@@ -186,18 +186,18 @@ func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) 
 	var err error
 	previous := i.environment
 	i.environment = environment
+	defer func() {
+		i.environment = previous
+	}()
 	for _, statement := range statements {
 		result, err = i.execute(statement)
 		if err != nil {
-			i.environment = previous
 			return nil, err
 		}
 		if result != nil {
-			i.environment = previous
 			return result, nil
 		}
 	}
-	i.environment = previous
 	return nil, nil
 }
 
