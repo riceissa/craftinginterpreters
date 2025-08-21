@@ -122,7 +122,7 @@ func (i *Interpreter) execute(stmt Stmt) (*ReturnedValue, error) {
 	case Function:
 		return nil, i.interpret_function_stmt(v)
 	case Return:
-		return i.interpret_return_stmt(v)  // This one actually returns a value
+		return i.interpret_return_stmt(v) // This one actually returns a value
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}

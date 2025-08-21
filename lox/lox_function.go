@@ -35,8 +35,8 @@ func (f *LoxFunction) Call(interpreter *Interpreter, arguments []any) (any, erro
 
 type LoxNativeFunction struct {
 	arity int
-	fn func(*Interpreter, []any) any
-	name string
+	fn    func(*Interpreter, []any) any
+	name  string
 }
 
 func (n *LoxNativeFunction) Arity() int {

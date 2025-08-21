@@ -30,7 +30,7 @@ type Print struct {
 
 type Return struct {
 	keyword Token
-	value Expr
+	value   Expr
 }
 
 type Var struct {
@@ -48,6 +48,6 @@ func (e Expression) sealStmt() {}
 func (f Function) sealStmt()   {}
 func (i If) sealStmt()         {}
 func (p Print) sealStmt()      {}
-func (r Return) sealStmt()      {}
+func (r Return) sealStmt()     {}
 func (v Var) sealStmt()        {}
 func (w While) sealStmt()      {}
