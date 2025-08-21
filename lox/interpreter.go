@@ -138,7 +138,11 @@ func (i *Interpreter) interpret_while_stmt(stmt While) error {
 
 func (i *Interpreter) interpret_block_stmt(stmt Block) error {
 	innerEnv := NewEnvironment()
-	err := i.executeBlock(stmt.statements, &innerEnv)
+	innerEnv.enclosing = i.environment
+	previous := i.environment
+	i.environment = &innerEnv
+	err := i.executeBlock(stmt.statements)
+	i.environment = previous
 	return err
 }
 
@@ -161,17 +165,13 @@ func (i *Interpreter) interpret_if_stmt(stmt If) error {
 	return nil
 }
 
-func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) error {
-	previous := i.environment
-	i.environment = environment
+func (i *Interpreter) executeBlock(statements []Stmt) error {
 	for _, statement := range statements {
 		err := i.execute(statement)
 		if err != nil {
-			i.environment = previous
 			return err
 		}
 	}
-	i.environment = previous
 	return nil
 }
 
@@ -190,7 +190,7 @@ func (i *Interpreter) interpret_var_stmt(stmt Var) error {
 	return nil
 }
 
-func (i *Interpreter) interpret_assing_expr(expr Assign) (any, error) {
+func (i *Interpreter) interpret_assign_expr(expr Assign) (any, error) {
 	value, err := i.evaluate(expr.value)
 	if err != nil {
 		return nil, err
@@ -233,7 +233,7 @@ func (i *Interpreter) evaluate(expr Expr) (any, error) {
 	case Variable:
 		return i.interpret_variable_expr(v)
 	case Assign:
-		return i.interpret_assing_expr(v)
+		return i.interpret_assign_expr(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
 	}

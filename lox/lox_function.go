@@ -23,6 +23,6 @@ func (f *LoxFunction) call(interpreter Interpreter, arguments []any) any {
 		environment.define(f.declaration.params[i].lexeme, arguments[i])
 	}
 
-	interpreter.executeBlock(f.declaration.body, &environment)
+	interpreter.executeBlock(f.declaration.body)
 	return nil
 }
