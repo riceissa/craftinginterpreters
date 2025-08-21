@@ -20,24 +20,25 @@ func NewInterpreter() Interpreter {
 		environment: &environment,
 	}
 
-	result.globals.define("clock", LoxCallable{
-		arity: func() int { return 0 },
-		call: func(interpreter *Interpreter, arguments []any) any {
+	result.globals.define("clock", LoxNativeFunction{
+		arity: 0,
+		fn: func(interpreter *Interpreter, arguments []any) any {
 			return float64(time.Now().UnixMilli()) / 1000.0
 		},
-		toString: func() string { return "<native fn>" },
+		name: "<native fn>",
 	})
 
 	return result
 }
 
-func (e *Environment) interpret_function_stmt(stmt Stmt) {
-	fun, ok := stmt.(Function)
-	if !ok {
-		panic("was expecting a Function here")
-	}
-	function := LoxFunction{fun}
-	e.define(fun.name.lexeme, function)
+func (i *Interpreter) interpret_function_stmt(stmt Function) error {
+	// fun, ok := stmt.(Function)
+	// if !ok {
+	// 	panic("was expecting a Function here")
+	// }
+	function := &LoxFunction{stmt}
+	i.environment.define(stmt.name.lexeme, function)
+	return nil
 }
 
 func (i *Interpreter) interpret(statements []Stmt) {
@@ -70,15 +71,15 @@ func (i *Interpreter) interpret_call_expr(expr Call) (any, error) {
 		return nil, RuntimeError{expr.paren, "Can only call functions and classes."}
 	}
 
-	if len(arguments) != function.arity() {
+	if len(arguments) != function.Arity() {
 		return nil, RuntimeError{expr.paren, fmt.Sprintf(
 			"Expected %d arguments but got %d.",
-			function.arity(),
+			function.Arity(),
 			len(arguments),
 		)}
 	}
 
-	return function.call(i, arguments), nil
+	return function.Call(i, arguments), nil
 }
 
 func (i *Interpreter) interpret_logical_expr(expr Logical) (any, error) {
@@ -114,6 +115,8 @@ func (i *Interpreter) execute(stmt Stmt) error {
 		return i.interpret_block_stmt(v)
 	case While:
 		return i.interpret_while_stmt(v)
+	case Function:
+		return i.interpret_function_stmt(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}
@@ -139,10 +142,7 @@ func (i *Interpreter) interpret_while_stmt(stmt While) error {
 func (i *Interpreter) interpret_block_stmt(stmt Block) error {
 	innerEnv := NewEnvironment()
 	innerEnv.enclosing = i.environment
-	previous := i.environment
-	i.environment = &innerEnv
-	err := i.executeBlock(stmt.statements)
-	i.environment = previous
+	err := i.executeBlock(stmt.statements, &innerEnv)
 	return err
 }
 
@@ -165,13 +165,17 @@ func (i *Interpreter) interpret_if_stmt(stmt If) error {
 	return nil
 }
 
-func (i *Interpreter) executeBlock(statements []Stmt) error {
+func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) error {
+	previous := i.environment
+	i.environment = environment
 	for _, statement := range statements {
 		err := i.execute(statement)
 		if err != nil {
+			i.environment = previous
 			return err
 		}
 	}
+	i.environment = previous
 	return nil
 }
 
@@ -234,6 +238,8 @@ func (i *Interpreter) evaluate(expr Expr) (any, error) {
 		return i.interpret_variable_expr(v)
 	case Assign:
 		return i.interpret_assign_expr(v)
+	case Call:
+		return i.interpret_call_expr(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
 	}
