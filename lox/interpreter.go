@@ -7,7 +7,7 @@ import (
 )
 
 type Interpreter struct {
-	globals *Environment
+	globals     *Environment
 	environment *Environment
 }
 
@@ -16,12 +16,12 @@ var interpreter Interpreter = NewInterpreter()
 func NewInterpreter() Interpreter {
 	var environment = NewEnvironment()
 	result := Interpreter{
-		globals: &environment,
+		globals:     &environment,
 		environment: &environment,
 	}
 
 	result.globals.define("clock", LoxCallable{
-		arity: func() int { return 0; },
+		arity: func() int { return 0 },
 		call: func(interpreter *Interpreter, arguments []any) any {
 			return float64(time.Now().UnixMilli()) / 1000.0
 		},

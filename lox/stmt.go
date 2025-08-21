@@ -13,9 +13,9 @@ type Expression struct {
 }
 
 type Function struct {
-	name Token
+	name   Token
 	params []Token
-	body []Stmt
+	body   []Stmt
 }
 
 type If struct {
@@ -40,7 +40,7 @@ type While struct {
 
 func (b Block) sealStmt()      {}
 func (e Expression) sealStmt() {}
-func (f Function) sealStmt() {}
+func (f Function) sealStmt()   {}
 func (i If) sealStmt()         {}
 func (p Print) sealStmt()      {}
 func (v Var) sealStmt()        {}

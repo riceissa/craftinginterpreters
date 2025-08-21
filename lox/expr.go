@@ -25,8 +25,8 @@ type Binary struct {
 }
 
 type Call struct {
-	callee Expr
-	paren Token
+	callee    Expr
+	paren     Token
 	arguments []Expr
 }
 
@@ -54,7 +54,7 @@ type Variable struct {
 }
 
 func (b Binary) sealExpr()   {}
-func (c Call) sealExpr()   {}
+func (c Call) sealExpr()     {}
 func (g Grouping) sealExpr() {}
 func (l Literal) sealExpr()  {}
 func (l Logical) sealExpr()  {}

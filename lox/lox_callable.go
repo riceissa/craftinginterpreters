@@ -1,8 +1,8 @@
 package main
 
 type LoxCallable struct {
-	arity func() int
-	call func(interpreter *Interpreter, arguments []any) any
+	arity    func() int
+	call     func(interpreter *Interpreter, arguments []any) any
 	toString func() string
 }
 
