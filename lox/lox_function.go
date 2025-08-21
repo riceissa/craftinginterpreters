@@ -6,6 +6,7 @@ import (
 
 type LoxFunction struct {
 	declaration Function
+	closure *Environment
 }
 
 func (f *LoxFunction) Arity() int {
@@ -18,7 +19,7 @@ func (f *LoxFunction) String() string {
 
 func (f *LoxFunction) Call(interpreter *Interpreter, arguments []any) (any, error) {
 	environment := NewEnvironment()
-	environment.enclosing = interpreter.globals
+	environment.enclosing = f.closure
 	for i := range len(f.declaration.params) {
 		environment.define(f.declaration.params[i].lexeme, arguments[i])
 	}
