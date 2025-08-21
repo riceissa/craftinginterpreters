@@ -193,6 +193,7 @@ func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) 
 			return nil, err
 		}
 		if result != nil {
+			i.environment = previous
 			return result, nil
 		}
 	}

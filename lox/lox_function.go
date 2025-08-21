@@ -27,7 +27,7 @@ func (f *LoxFunction) Call(interpreter *Interpreter, arguments []any) (any, erro
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	return result.value, nil
 }
 
 type LoxNativeFunction struct {
