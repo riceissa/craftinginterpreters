@@ -3,13 +3,46 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
-var environment = NewEnvironment()
+type Interpreter struct {
+	globals *Environment
+	environment *Environment
+}
 
-func (e *Environment) interpret(statements []Stmt) {
+var interpreter Interpreter = NewInterpreter()
+
+func NewInterpreter() Interpreter {
+	var environment = NewEnvironment()
+	result := Interpreter{
+		globals: &environment,
+		environment: &environment,
+	}
+
+	result.globals.define("clock", LoxCallable{
+		arity: func() int { return 0; },
+		call: func(interpreter *Interpreter, arguments []any) any {
+			return float64(time.Now().UnixMilli()) / 1000.0
+		},
+		toString: func() string { return "<native fn>" },
+	})
+
+	return result
+}
+
+func (e *Environment) interpret_function_stmt(stmt Stmt) {
+	fun, ok := stmt.(Function)
+	if !ok {
+		panic("was expecting a Function here")
+	}
+	function := LoxFunction{fun}
+	e.define(fun.name.lexeme, function)
+}
+
+func (i *Interpreter) interpret(statements []Stmt) {
 	for _, statement := range statements {
-		err := e.execute(statement)
+		err := i.execute(statement)
 		if err != nil {
 			if rte, ok := err.(RuntimeError); ok {
 				runtimeError(rte)
@@ -18,8 +51,38 @@ func (e *Environment) interpret(statements []Stmt) {
 	}
 }
 
-func (e *Environment) interpret_logical_expr(expr Logical) (any, error) {
-	left, err := e.evaluate(expr.left)
+func (i *Interpreter) interpret_call_expr(expr Call) (any, error) {
+	callee, err := i.evaluate(expr.callee)
+	if err != nil {
+		return nil, err
+	}
+	arguments := []any{}
+	for _, argument := range expr.arguments {
+		res, err := i.evaluate(argument)
+		if err != nil {
+			return nil, err
+		}
+		arguments = append(arguments, res)
+	}
+
+	function, ok := callee.(LoxCallable)
+	if !ok {
+		return nil, RuntimeError{expr.paren, "Can only call functions and classes."}
+	}
+
+	if len(arguments) != function.arity() {
+		return nil, RuntimeError{expr.paren, fmt.Sprintf(
+			"Expected %d arguments but got %d.",
+			function.arity(),
+			len(arguments),
+		)}
+	}
+
+	return function.call(i, arguments), nil
+}
+
+func (i *Interpreter) interpret_logical_expr(expr Logical) (any, error) {
+	left, err := i.evaluate(expr.left)
 	if err != nil {
 		return nil, err
 	}
@@ -34,38 +97,38 @@ func (e *Environment) interpret_logical_expr(expr Logical) (any, error) {
 		}
 	}
 
-	return e.evaluate(expr.right)
+	return i.evaluate(expr.right)
 }
 
-func (e *Environment) execute(stmt Stmt) error {
+func (i *Interpreter) execute(stmt Stmt) error {
 	switch v := stmt.(type) {
 	case If:
-		return e.interpret_if_stmt(v)
+		return i.interpret_if_stmt(v)
 	case Print:
-		return e.interpret_print_stmt(v)
+		return i.interpret_print_stmt(v)
 	case Expression:
-		return e.interpret_expression_stmt(v)
+		return i.interpret_expression_stmt(v)
 	case Var:
-		return e.interpret_var_stmt(v)
+		return i.interpret_var_stmt(v)
 	case Block:
-		return e.interpret_block_stmt(v)
+		return i.interpret_block_stmt(v)
 	case While:
-		return e.interpret_while_stmt(v)
+		return i.interpret_while_stmt(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}
 }
 
-func (e *Environment) interpret_while_stmt(stmt While) error {
+func (i *Interpreter) interpret_while_stmt(stmt While) error {
 	for {
-		cond, err := e.evaluate(stmt.condition)
+		cond, err := i.evaluate(stmt.condition)
 		if err != nil {
 			return err
 		}
 		if !isTruthy(cond) {
 			break
 		}
-		err = e.execute(stmt.body)
+		err = i.execute(stmt.body)
 		if err != nil {
 			return err
 		}
@@ -73,25 +136,24 @@ func (e *Environment) interpret_while_stmt(stmt While) error {
 	return nil
 }
 
-func (e *Environment) interpret_block_stmt(stmt Block) error {
+func (i *Interpreter) interpret_block_stmt(stmt Block) error {
 	innerEnv := NewEnvironment()
-	innerEnv.enclosing = e
-	err := innerEnv.execute_block(stmt.statements)
+	err := i.executeBlock(stmt.statements, &innerEnv)
 	return err
 }
 
-func (e *Environment) interpret_if_stmt(stmt If) error {
-	cond, err := e.evaluate(stmt.condition)
+func (i *Interpreter) interpret_if_stmt(stmt If) error {
+	cond, err := i.evaluate(stmt.condition)
 	if err != nil {
 		return err
 	}
 	if isTruthy(cond) {
-		err := e.execute(stmt.thenBranch)
+		err := i.execute(stmt.thenBranch)
 		if err != nil {
 			return err
 		}
 	} else if stmt.elseBranch != nil { // TODO: this check might be bad, because I don't think elseBranch will be nil, it will be an empty Stmt
-		err := e.execute(stmt.elseBranch)
+		err := i.execute(stmt.elseBranch)
 		if err != nil {
 			return err
 		}
@@ -99,36 +161,41 @@ func (e *Environment) interpret_if_stmt(stmt If) error {
 	return nil
 }
 
-func (e *Environment) execute_block(statements []Stmt) error {
+func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) error {
+	previous := i.environment
+	i.environment = environment
 	for _, statement := range statements {
-		err := e.execute(statement)
+		err := i.execute(statement)
 		if err != nil {
+			i.environment = previous
 			return err
 		}
 	}
+	i.environment = previous
 	return nil
 }
 
-func (e *Environment) interpret_var_stmt(stmt Var) error {
+func (i *Interpreter) interpret_var_stmt(stmt Var) error {
 	var value any
 	var err error
 	if stmt.initializer != nil {
-		value, err = e.evaluate(stmt.initializer)
+		value, err = i.evaluate(stmt.initializer)
 		if err != nil {
 			return err
 		}
 	}
 
+	e := i.environment
 	e.define(stmt.name.lexeme, value)
 	return nil
 }
 
-func (e *Environment) interpret_assing_expr(expr Assign) (any, error) {
-	value, err := e.evaluate(expr.value)
+func (i *Interpreter) interpret_assing_expr(expr Assign) (any, error) {
+	value, err := i.evaluate(expr.value)
 	if err != nil {
 		return nil, err
 	}
-	err = e.assign(expr.name, value)
+	err = i.environment.assign(expr.name, value)
 	return value, err
 }
 
@@ -147,34 +214,34 @@ func (e *Environment) assign(name Token, value any) error {
 	return RuntimeError{name, fmt.Sprintf("Undefined variable %q; %q", name.lexeme)}
 }
 
-func (e *Environment) interpret_variable_expr(expr Variable) (any, error) {
-	return e.get(expr.name)
+func (i *Interpreter) interpret_variable_expr(expr Variable) (any, error) {
+	return i.environment.get(expr.name)
 }
 
-func (e *Environment) evaluate(expr Expr) (any, error) {
+func (i *Interpreter) evaluate(expr Expr) (any, error) {
 	switch v := expr.(type) {
 	case Logical:
-		return e.interpret_logical_expr(v)
+		return i.interpret_logical_expr(v)
 	case Binary:
-		return e.interpret_binary_expr(v)
+		return i.interpret_binary_expr(v)
 	case Grouping:
-		return e.interpret_grouping_expr(v)
+		return i.interpret_grouping_expr(v)
 	case Literal:
 		return interpret_literal_expr(v)
 	case Unary:
-		return e.interpret_unary_expr(v)
+		return i.interpret_unary_expr(v)
 	case Variable:
-		return e.interpret_variable_expr(v)
+		return i.interpret_variable_expr(v)
 	case Assign:
-		return e.interpret_assing_expr(v)
+		return i.interpret_assing_expr(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
 	}
 }
 
-func (e *Environment) interpret_binary_expr(expr Binary) (any, error) {
-	left, _ := e.evaluate(expr.left)
-	right, _ := e.evaluate(expr.right)
+func (i *Interpreter) interpret_binary_expr(expr Binary) (any, error) {
+	left, _ := i.evaluate(expr.left)
+	right, _ := i.evaluate(expr.right)
 
 	switch expr.operator.token_type {
 	case GREATER:
@@ -221,8 +288,8 @@ func (e *Environment) interpret_binary_expr(expr Binary) (any, error) {
 	panic("Unreachable")
 }
 
-func (e *Environment) interpret_grouping_expr(expr Grouping) (any, error) {
-	result, err := e.evaluate(expr.expression)
+func (i *Interpreter) interpret_grouping_expr(expr Grouping) (any, error) {
+	result, err := i.evaluate(expr.expression)
 	return result, err
 }
 
@@ -230,8 +297,8 @@ func interpret_literal_expr(expr Literal) (any, error) {
 	return expr.value, nil
 }
 
-func (e *Environment) interpret_unary_expr(expr Unary) (any, error) {
-	right, err := e.evaluate(expr.right)
+func (i *Interpreter) interpret_unary_expr(expr Unary) (any, error) {
+	right, err := i.evaluate(expr.right)
 	if err != nil {
 		return nil, err
 	}
@@ -247,13 +314,13 @@ func (e *Environment) interpret_unary_expr(expr Unary) (any, error) {
 	panic("Unreachable")
 }
 
-func (e *Environment) interpret_expression_stmt(stmt Expression) error {
-	_, err := e.evaluate(stmt.expression)
+func (i *Interpreter) interpret_expression_stmt(stmt Expression) error {
+	_, err := i.evaluate(stmt.expression)
 	return err
 }
 
-func (e *Environment) interpret_print_stmt(stmt Print) error {
-	value, err := e.evaluate(stmt.expression)
+func (i *Interpreter) interpret_print_stmt(stmt Print) error {
+	value, err := i.evaluate(stmt.expression)
 	if err != nil {
 		return err
 	}

@@ -200,6 +200,41 @@ func (p *Parser) expressionStatement() (Stmt, error) {
 	return Expression{expr}, nil
 }
 
+func (p *Parser) function(kind string) (Function, error) {
+	name, err := p.consume(IDENTIFIER, fmt.Sprintf("Expect %v name.", kind))
+	if err != nil {
+		return Function{}, err
+	}
+	_, err = p.consume(LEFT_PAREN, fmt.Sprintf("Expect '(' after %v name.", kind))
+	if err != nil {
+		return Function{}, err
+	}
+	parameters := []Token{}
+	if !p.check(RIGHT_PAREN) {
+		for {
+			if len(parameters) >= 255 {
+				log_parse_error(p.peek(), "Can't have more than 255 parameters.")
+			}
+			ident, err := p.consume(IDENTIFIER, "Expect parameters name.")
+			if err != nil {
+				return Function{}, err
+			}
+			parameters = append(parameters, ident)
+			if !p.match(COMMA) {
+				break
+			}
+		}
+	}
+	p.consume(RIGHT_PAREN, "Expect ')' after parameters.")
+
+	p.consume(LEFT_BRACE, fmt.Sprintf("Expect '{' before %v body.", kind))
+	body, err := p.block()
+	if err != nil {
+		return Function{}, err
+	}
+	return Function{name, parameters, body}, nil
+}
+
 func (p *Parser) or() (Expr, error) {
 	expr, err := p.and()
 	if err != nil {
@@ -266,6 +301,9 @@ func (p *Parser) expression() (Expr, error) {
 }
 
 func (p *Parser) declaration() (Stmt, error) {
+	if p.match(FUN) {
+		return p.function("function")
+	}
 	if p.match(VAR) {
 		result, err := p.varDeclaration()
 		if err != nil {
