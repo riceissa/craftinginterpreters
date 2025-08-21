@@ -33,7 +33,7 @@ func (p *Parser) statement() (Stmt, error) {
 		return p.printStatement()
 	}
 	if p.match(RETURN) {
-		return returnStatement()
+		return p.returnStatement()
 	}
 	if p.match(WHILE) {
 		return p.whileStatement()
@@ -50,7 +50,7 @@ func (p *Parser) statement() (Stmt, error) {
 
 func (p *Parser) returnStatement() (Stmt, error) {
 	keyword := p.previous()
-	value = nil
+	var value Expr
 	var err error
 	if p.check(SEMICOLON) {
 		value, err = p.expression()

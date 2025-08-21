@@ -16,15 +16,18 @@ func (f *LoxFunction) String() string {
 	return fmt.Sprintf("<fn %v >", f.declaration.name.lexeme)
 }
 
-func (f *LoxFunction) Call(interpreter *Interpreter, arguments []any) any {
+func (f *LoxFunction) Call(interpreter *Interpreter, arguments []any) (any, error) {
 	environment := NewEnvironment()
 	environment.enclosing = interpreter.globals
 	for i := range len(f.declaration.params) {
 		environment.define(f.declaration.params[i].lexeme, arguments[i])
 	}
 
-	interpreter.executeBlock(f.declaration.body, &environment)
-	return nil
+	result, err := interpreter.executeBlock(f.declaration.body, &environment)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 type LoxNativeFunction struct {

@@ -48,5 +48,6 @@ func (e Expression) sealStmt() {}
 func (f Function) sealStmt()   {}
 func (i If) sealStmt()         {}
 func (p Print) sealStmt()      {}
+func (r Return) sealStmt()      {}
 func (v Var) sealStmt()        {}
 func (w While) sealStmt()      {}

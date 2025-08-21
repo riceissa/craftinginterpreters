@@ -11,6 +11,10 @@ type Interpreter struct {
 	environment *Environment
 }
 
+type ReturnedValue struct {
+	value any
+}
+
 var interpreter Interpreter = NewInterpreter()
 
 func NewInterpreter() Interpreter {
@@ -43,7 +47,7 @@ func (i *Interpreter) interpret_function_stmt(stmt Function) error {
 
 func (i *Interpreter) interpret(statements []Stmt) {
 	for _, statement := range statements {
-		err := i.execute(statement)
+		_, err := i.execute(statement)
 		if err != nil {
 			if rte, ok := err.(RuntimeError); ok {
 				runtimeError(rte)
@@ -101,84 +105,99 @@ func (i *Interpreter) interpret_logical_expr(expr Logical) (any, error) {
 	return i.evaluate(expr.right)
 }
 
-func (i *Interpreter) execute(stmt Stmt) error {
+func (i *Interpreter) execute(stmt Stmt) (*ReturnedValue, error) {
 	switch v := stmt.(type) {
 	case If:
 		return i.interpret_if_stmt(v)
 	case Print:
-		return i.interpret_print_stmt(v)
+		return nil, i.interpret_print_stmt(v)
 	case Expression:
-		return i.interpret_expression_stmt(v)
+		return nil, i.interpret_expression_stmt(v)
 	case Var:
-		return i.interpret_var_stmt(v)
+		return nil, i.interpret_var_stmt(v)
 	case Block:
 		return i.interpret_block_stmt(v)
 	case While:
 		return i.interpret_while_stmt(v)
 	case Function:
-		return i.interpret_function_stmt(v)
+		return nil, i.interpret_function_stmt(v)
 	case Return:
-		return i.interpret_return_stmt(v)
+		return i.interpret_return_stmt(v)  // This one actually returns a value
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}
 }
 
-func (i *Interpreter) interpret_while_stmt(stmt While) error {
+func (i *Interpreter) interpret_while_stmt(stmt While) (*ReturnedValue, error) {
 	for {
 		cond, err := i.evaluate(stmt.condition)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if !isTruthy(cond) {
 			break
 		}
-		err = i.execute(stmt.body)
+		var res *ReturnedValue
+		res, err = i.execute(stmt.body)
 		if err != nil {
-			return err
+			return nil, err
+		}
+		if res != nil {
+			return res, nil
 		}
 	}
-	return nil
+	return nil, nil
 }
 
-func (i *Interpreter) interpret_block_stmt(stmt Block) error {
+func (i *Interpreter) interpret_block_stmt(stmt Block) (*ReturnedValue, error) {
 	innerEnv := NewEnvironment()
 	innerEnv.enclosing = i.environment
-	err := i.executeBlock(stmt.statements, &innerEnv)
-	return err
+	res, err := i.executeBlock(stmt.statements, &innerEnv)
+	return res, err
 }
 
-func (i *Interpreter) interpret_if_stmt(stmt If) error {
+func (i *Interpreter) interpret_if_stmt(stmt If) (*ReturnedValue, error) {
 	cond, err := i.evaluate(stmt.condition)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if isTruthy(cond) {
-		err := i.execute(stmt.thenBranch)
+		res, err := i.execute(stmt.thenBranch)
 		if err != nil {
-			return err
+			return nil, err
+		}
+		if res != nil {
+			return res, nil
 		}
 	} else if stmt.elseBranch != nil { // TODO: this check might be bad, because I don't think elseBranch will be nil, it will be an empty Stmt
-		err := i.execute(stmt.elseBranch)
+		res, err := i.execute(stmt.elseBranch)
 		if err != nil {
-			return err
+			return nil, err
+		}
+		if res != nil {
+			return res, nil
 		}
 	}
-	return nil
+	return nil, nil
 }
 
-func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) error {
+func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) (*ReturnedValue, error) {
+	var result *ReturnedValue
+	var err error
 	previous := i.environment
 	i.environment = environment
 	for _, statement := range statements {
-		err := i.execute(statement)
+		result, err = i.execute(statement)
 		if err != nil {
 			i.environment = previous
-			return err
+			return nil, err
+		}
+		if result != nil {
+			return result, nil
 		}
 	}
 	i.environment = previous
-	return nil
+	return nil, nil
 }
 
 func (i *Interpreter) interpret_var_stmt(stmt Var) error {
@@ -336,12 +355,16 @@ func (i *Interpreter) interpret_print_stmt(stmt Print) error {
 	return nil
 }
 
-func (i *Interpreter) interpret_return_stmt(stmt Return) (any, error) {
+func (i *Interpreter) interpret_return_stmt(stmt Return) (*ReturnedValue, error) {
 	var value any = nil
+	var err error
 	if stmt.value != nil {
-		value = i.evaluate(stmt.value)
+		value, err = i.evaluate(stmt.value)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return Return{value}
+	return &ReturnedValue{value}, nil
 }
 
 func stringify(object any) string {
