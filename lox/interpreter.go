@@ -36,10 +36,6 @@ func NewInterpreter() Interpreter {
 }
 
 func (i *Interpreter) interpret_function_stmt(stmt Function) error {
-	// fun, ok := stmt.(Function)
-	// if !ok {
-	// 	panic("was expecting a Function here")
-	// }
 	function := &LoxFunction{stmt, i.environment}
 	i.environment.define(stmt.name.lexeme, function)
 	return nil
