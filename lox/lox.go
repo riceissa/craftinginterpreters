@@ -78,8 +78,8 @@ func run(source string) {
 
 	if hadError { return }
 
-	resolver := Resolver{&interpreter}
-	resolver.resolve(statements)
+	resolver := NewResolver(&interpreter)
+	resolver.resolveStatements(statements)
 
 	// Stop if there was a resolution error.
 	if hadError { return }
