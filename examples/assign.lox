@@ -1,6 +1,13 @@
-var i = 0;
-print i < 20;
+{
+  var i = 0;
+  while (i < 3) {
+    {
+        print i;
+    }
+    i = i + 1;
+  }
+}
 
-for (var k = 0; k < 5; k = k + 1) {
-  print k;
+for (var i = 0; i < 3; i = i + 1) {
+  print i;
 }

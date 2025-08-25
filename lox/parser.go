@@ -71,6 +71,7 @@ func (p *Parser) forStatement() (Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var initializer Stmt = nil
 	if p.match(SEMICOLON) {
 		// do nothing
