@@ -1,0 +1,6 @@
+var i = 0;
+print i < 20;
+
+for (var k = 0; k < 5; k = k + 1) {
+  print k;
+}

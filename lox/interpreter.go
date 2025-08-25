@@ -302,6 +302,7 @@ func (i *Interpreter) interpret_binary_expr(expr Binary) (any, error) {
 	}
 
 	switch expr.operator.token_type {
+	// TODO: fix the rest of these to return the error early if checkNumberOperands fails. If we return the err on the same line as the result, then we actually panic if left/right are not numbers, which is not what we want.
 	case GREATER:
 		err := checkNumberOperands(expr.operator, left, right)
 		return left.(float64) > right.(float64), err
@@ -310,10 +311,16 @@ func (i *Interpreter) interpret_binary_expr(expr Binary) (any, error) {
 		return left.(float64) >= right.(float64), err
 	case LESS:
 		err := checkNumberOperands(expr.operator, left, right)
-		return left.(float64) < right.(float64), err
+		if err != nil {
+			return nil, err
+		}
+		return left.(float64) < right.(float64), nil
 	case LESS_EQUAL:
 		err := checkNumberOperands(expr.operator, left, right)
-		return left.(float64) <= right.(float64), err
+		if err != nil {
+			return nil, err
+		}
+		return left.(float64) <= right.(float64), nil
 	case BANG_EQUAL:
 		return !isEqual(left, right), nil
 	case EQUAL_EQUAL:
