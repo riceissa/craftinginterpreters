@@ -228,7 +228,7 @@ func (i *Interpreter) interpret_assign_expr(expr Assign) (any, error) {
 		return nil, err
 	}
 
-	distance, ok := i.locals[&expr]
+	distance, ok := i.locals[expr]
 	if ok {
 		i.environment.assignAt(distance, expr.name, value)
 	} else {
@@ -249,7 +249,7 @@ func (e *Environment) assign(name Token, value any) error {
 		return nil
 	}
 
-	return RuntimeError{name, fmt.Sprintf("Undefined variable %q; %q", name.lexeme)}
+	return RuntimeError{name, fmt.Sprintf("Inside assign: Undefined variable %q", name.lexeme)}
 }
 
 func (i *Interpreter) interpret_variable_expr(expr Variable) (any, error) {
