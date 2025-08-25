@@ -9,6 +9,7 @@ import (
 type Interpreter struct {
 	globals     *Environment
 	environment *Environment
+	locals map[*Expr]int
 }
 
 type ReturnedValue struct {
@@ -22,6 +23,7 @@ func NewInterpreter() Interpreter {
 	result := Interpreter{
 		globals:     &environment,
 		environment: &environment,
+		locals: make(map[*Expr]int),
 	}
 
 	result.globals.define("clock", LoxNativeFunction{
@@ -124,6 +126,10 @@ func (i *Interpreter) execute(stmt Stmt) (*ReturnedValue, error) {
 	}
 }
 
+func resolve(expr *Expr, depth int) {
+	locals[expr] = depth
+}
+
 func (i *Interpreter) interpret_while_stmt(stmt While) (*ReturnedValue, error) {
 	for {
 		cond, err := i.evaluate(stmt.condition)
@@ -217,7 +223,13 @@ func (i *Interpreter) interpret_assign_expr(expr Assign) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = i.environment.assign(expr.name, value)
+
+	distance, ok := locals[expr]
+	if ok {
+		i.environment.assignAt(distance, expr.name, value)
+	} else {
+		err = i.globals.assign(expr.name, value)
+	}
 	return value, err
 }
 
@@ -237,7 +249,18 @@ func (e *Environment) assign(name Token, value any) error {
 }
 
 func (i *Interpreter) interpret_variable_expr(expr Variable) (any, error) {
-	return i.environment.get(expr.name)
+	return lookUpVariable(expr.name, expr)
+}
+
+func lookUpVariable(name Token, expr Expr) any {
+	distance, ok := locals[&expr]
+	if ok {
+		return environment.getAt(distance, name.lexeme)
+	} else {
+		// TODO: what if it's not in globals either? might need to
+		// manually return nil here if not in globals
+		return globals[name]
+	}
 }
 
 func (i *Interpreter) evaluate(expr Expr) (any, error) {

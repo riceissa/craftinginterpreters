@@ -76,9 +76,13 @@ func run(source string) {
 	parser := Parser{tokens: tokens}
 	statements := parser.parse()
 
-	if hadError {
-		return
-	}
+	if hadError { return }
+
+	resolver := Resolver{&interpreter}
+	resolver.resolve(statements)
+
+	// Stop if there was a resolution error.
+	if hadError { return }
 
 	interpreter.interpret(statements)
 	// fmt.Println(print_expr(expression))
