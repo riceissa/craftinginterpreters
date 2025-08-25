@@ -100,8 +100,11 @@ func (r *Resolver) resolveAssignExpr(expr Assign) {
 }
 
 func (r *Resolver) resolveVariableExpr(expr Variable) {
-	if len(r.scopes) > 0 && !r.scopes[len(r.scopes) - 1][expr.name.lexeme] {
-		log_parse_error(expr.name, "Can't read local variable in its own initializer: %q\n")
+	if len(r.scopes) > 0 {
+		v, ok := r.scopes[len(r.scopes) - 1][expr.name.lexeme]
+		if ok && !v {
+			log_parse_error(expr.name, "Can't read local variable in its own initializer.")
+		}
 	}
 
 	r.resolveLocal(expr, expr.name)
@@ -122,7 +125,7 @@ func (r *Resolver) declare(name Token) {
 
 	scope := r.scopes[len(r.scopes) - 1]
 	if _, ok := scope[name.lexeme]; ok {
-		log_parse_error(name, "Already a variable with this name in this scope: %q\n")
+		log_parse_error(name, "Already a variable with this name in this scope")
 	}
 	scope[name.lexeme] = false
 }
@@ -175,7 +178,7 @@ func (r *Resolver) resolvePrintStmt(stmt Print) {
 
 func (r *Resolver) resolveReturnStmt(stmt Return) {
 	if r.currentFunction == FT_NONE {
-		log_parse_error(stmt.keyword, "Can't return from top-level code: %q\n")
+		log_parse_error(stmt.keyword, "Can't return from top-level code")
 	}
 
 	if stmt.value != nil {
