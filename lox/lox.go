@@ -79,10 +79,9 @@ func run(source string) {
 
 	fmt.Print(print_statements(statements, 0))
 
-	// runtime.Breakpoint()
-
 	if hadError { return }
 
+	// runtime.Breakpoint()
 	resolver := NewResolver(&interpreter)
 	resolver.resolveStatements(statements)
 
