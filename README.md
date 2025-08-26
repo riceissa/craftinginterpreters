@@ -13,4 +13,4 @@ what the book uses, for the first part) to Go. The biggest differences are:
 3. I didn't do the meta-programming thing from GenerateAst.java, since Go
    doesn't have as much boilerplate when defining structs.
 
-So far, everything up to and including Chapter 10 is done.
+So far, everything up to and including Chapter 11 is done.
