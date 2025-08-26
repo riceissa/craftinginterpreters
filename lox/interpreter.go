@@ -58,7 +58,7 @@ func (i *Interpreter) interpret(statements []Stmt) {
 	}
 }
 
-func (i *Interpreter) interpret_call_expr(expr Call) (any, error) {
+func (i *Interpreter) interpret_call_expr(expr *Call) (any, error) {
 	callee, err := i.evaluate(expr.callee)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (i *Interpreter) interpret_call_expr(expr Call) (any, error) {
 	return function.Call(i, arguments)
 }
 
-func (i *Interpreter) interpret_logical_expr(expr Logical) (any, error) {
+func (i *Interpreter) interpret_logical_expr(expr *Logical) (any, error) {
 	left, err := i.evaluate(expr.left)
 	if err != nil {
 		return nil, err
@@ -222,7 +222,7 @@ func (i *Interpreter) interpret_var_stmt(stmt Var) error {
 	return nil
 }
 
-func (i *Interpreter) interpret_assign_expr(expr Assign) (any, error) {
+func (i *Interpreter) interpret_assign_expr(expr *Assign) (any, error) {
 	value, err := i.evaluate(expr.value)
 	if err != nil {
 		return nil, err
@@ -252,7 +252,7 @@ func (e *Environment) assign(name Token, value any) error {
 	return RuntimeError{name, fmt.Sprintf("Inside assign: Undefined variable %q", name.lexeme)}
 }
 
-func (i *Interpreter) interpret_variable_expr(expr Variable) (any, error) {
+func (i *Interpreter) interpret_variable_expr(expr *Variable) (any, error) {
 	return i.lookUpVariable(expr.name, expr)
 }
 
@@ -267,28 +267,28 @@ func (i *Interpreter) lookUpVariable(name Token, expr Expr) (any, error) {
 
 func (i *Interpreter) evaluate(expr Expr) (any, error) {
 	switch v := expr.(type) {
-	case Logical:
+	case *Logical:
 		return i.interpret_logical_expr(v)
-	case Binary:
+	case *Binary:
 		return i.interpret_binary_expr(v)
-	case Grouping:
+	case *Grouping:
 		return i.interpret_grouping_expr(v)
-	case Literal:
+	case *Literal:
 		return interpret_literal_expr(v)
-	case Unary:
+	case *Unary:
 		return i.interpret_unary_expr(v)
-	case Variable:
+	case *Variable:
 		return i.interpret_variable_expr(v)
-	case Assign:
+	case *Assign:
 		return i.interpret_assign_expr(v)
-	case Call:
+	case *Call:
 		return i.interpret_call_expr(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
 	}
 }
 
-func (i *Interpreter) interpret_binary_expr(expr Binary) (any, error) {
+func (i *Interpreter) interpret_binary_expr(expr *Binary) (any, error) {
 	left, _ := i.evaluate(expr.left)
 	right, _ := i.evaluate(expr.right)
 
@@ -353,16 +353,16 @@ func (i *Interpreter) interpret_binary_expr(expr Binary) (any, error) {
 	panic("Unreachable")
 }
 
-func (i *Interpreter) interpret_grouping_expr(expr Grouping) (any, error) {
+func (i *Interpreter) interpret_grouping_expr(expr *Grouping) (any, error) {
 	result, err := i.evaluate(expr.expression)
 	return result, err
 }
 
-func interpret_literal_expr(expr Literal) (any, error) {
+func interpret_literal_expr(expr *Literal) (any, error) {
 	return expr.value, nil
 }
 
-func (i *Interpreter) interpret_unary_expr(expr Unary) (any, error) {
+func (i *Interpreter) interpret_unary_expr(expr *Unary) (any, error) {
 	right, err := i.evaluate(expr.right)
 	if err != nil {
 		return nil, err

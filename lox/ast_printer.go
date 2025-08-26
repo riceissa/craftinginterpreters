@@ -48,20 +48,20 @@ func print_stmt(stmt Stmt, indent int) string {
 
 func print_expr(expr Expr) string {
 	switch v := expr.(type) {
-	case Binary:
+	case *Binary:
 		return parenthesize(v.operator.lexeme, v.left, v.right)
-	case Grouping:
+	case *Grouping:
 		return parenthesize("group", v.expression)
-	case Literal:
+	case *Literal:
 		if v.value == nil {
 			return "nil"
 		}
 		return fmt.Sprintf("%v", v.value)
-	case Unary:
+	case *Unary:
 		return parenthesize(v.operator.lexeme, v.right)
-	case Variable:
+	case *Variable:
 		return "(variable " + v.name.lexeme + " )"
-	case Assign:
+	case *Assign:
 		return parenthesize(v.name.lexeme, v.value)
 	default:
 		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
@@ -95,13 +95,13 @@ func parenthesize(name string, exprs ...Expr) string {
 }
 
 func test_ast_printer() {
-	var expression Expr = Binary{
-		Unary{
+	var expression Expr = &Binary{
+		&Unary{
 			Token{MINUS, "-", nil, 1},
-			Literal{123},
+			&Literal{123},
 		},
 		Token{STAR, "*", nil, 1},
-		Grouping{Literal{45.67}},
+		&Grouping{&Literal{45.67}},
 	}
 	fmt.Println(print_expr(expression))
 }

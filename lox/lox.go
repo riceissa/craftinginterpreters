@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	// "runtime"
 )
 
 var hadError = false
@@ -77,18 +76,16 @@ func run(source string) {
 	parser := Parser{tokens: tokens}
 	statements := parser.parse()
 
-	fmt.Print(print_statements(statements, 0))
+	// fmt.Print(print_statements(statements, 0))
 
 	if hadError { return }
 
-	// runtime.Breakpoint()
 	resolver := NewResolver(&interpreter)
 	resolver.resolveStatements(statements)
 
 	// Stop if there was a resolution error.
 	if hadError { return }
 
-	// runtime.Breakpoint()
 	interpreter.interpret(statements)
 	// fmt.Println(print_expr(expression))
 

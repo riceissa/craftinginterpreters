@@ -52,21 +52,21 @@ func (r *Resolver) resolveStmt(stmt Stmt) {
 
 func (r *Resolver) resolveExpr(expr Expr) {
 	switch v := expr.(type) {
-	case Assign:
+	case *Assign:
 		r.resolveAssignExpr(v)
-	case Variable:
+	case *Variable:
 		r.resolveVariableExpr(v)
-	case Binary:
+	case *Binary:
 		r.resolveBinaryExpr(v)
-	case Call:
+	case *Call:
 		r.resolveCallExpr(v)
-	case Grouping:
+	case *Grouping:
 		r.resolveGroupingExpr(v)
-	case Literal:
+	case *Literal:
 		r.resolveLiteralExpr(v)
-	case Logical:
+	case *Logical:
 		r.resolveLogicalExpr(v)
-	case Unary:
+	case *Unary:
 		r.resolveUnaryExpr(v)
 	default:
 		panic("Unreachable.")
@@ -94,12 +94,12 @@ func (r *Resolver) resolveVarStmt(stmt Var) {
 	r.define(stmt.name)
 }
 
-func (r *Resolver) resolveAssignExpr(expr Assign) {
+func (r *Resolver) resolveAssignExpr(expr *Assign) {
 	r.resolveExpr(expr.value)
 	r.resolveLocal(expr, expr.name)
 }
 
-func (r *Resolver) resolveVariableExpr(expr Variable) {
+func (r *Resolver) resolveVariableExpr(expr *Variable) {
 	if len(r.scopes) > 0 {
 		v, ok := r.scopes[len(r.scopes) - 1][expr.name.lexeme]
 		if ok && !v {
@@ -191,12 +191,12 @@ func (r *Resolver) resolveWhileStmt(stmt While) {
 	r.resolveStmt(stmt.body)
 }
 
-func (r *Resolver) resolveBinaryExpr(expr Binary) {
+func (r *Resolver) resolveBinaryExpr(expr *Binary) {
 	r.resolveExpr(expr.left)
 	r.resolveExpr(expr.right)
 }
 
-func (r *Resolver) resolveCallExpr(expr Call) {
+func (r *Resolver) resolveCallExpr(expr *Call) {
 	r.resolveExpr(expr.callee)
 
 	for _, argument := range expr.arguments {
@@ -204,19 +204,19 @@ func (r *Resolver) resolveCallExpr(expr Call) {
 	}
 }
 
-func (r *Resolver) resolveGroupingExpr(expr Grouping) {
+func (r *Resolver) resolveGroupingExpr(expr *Grouping) {
 	r.resolveExpr(expr.expression)
 }
 
-func (r *Resolver) resolveLiteralExpr(expr Literal) {
+func (r *Resolver) resolveLiteralExpr(expr *Literal) {
 	// nothing to do
 }
 
-func (r *Resolver) resolveLogicalExpr(expr Logical) {
+func (r *Resolver) resolveLogicalExpr(expr *Logical) {
 	r.resolveExpr(expr.left)
 	r.resolveExpr(expr.right)
 }
 
-func (r *Resolver) resolveUnaryExpr(expr Unary) {
+func (r *Resolver) resolveUnaryExpr(expr *Unary) {
 	r.resolveExpr(expr.right)
 }

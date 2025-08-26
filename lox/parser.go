@@ -123,7 +123,7 @@ func (p *Parser) forStatement() (Stmt, error) {
 	}
 
 	if condition == nil {
-		condition = Literal{true}
+		condition = &Literal{true}
 	}
 	body = While{condition, body}
 
@@ -269,7 +269,7 @@ func (p *Parser) or() (Expr, error) {
 		if err != nil {
 			return nil, err
 		}
-		expr = Logical{expr, operator, right}
+		expr = &Logical{expr, operator, right}
 	}
 
 	return expr, nil
@@ -287,7 +287,7 @@ func (p *Parser) and() (Expr, error) {
 		if err != nil {
 			return nil, err
 		}
-		expr = Logical{expr, operator, right}
+		expr = &Logical{expr, operator, right}
 	}
 
 	return expr, nil
@@ -307,9 +307,9 @@ func (p *Parser) assignment() (Expr, error) {
 		}
 
 		switch v := expr.(type) {
-		case Variable:
+		case *Variable:
 			var name Token = v.name
-			return Assign{name, value}, nil
+			return &Assign{name, value}, nil
 		default:
 			fmt.Printf("Invalid assignment target: %q", equals)
 		}
@@ -377,7 +377,7 @@ func (p *Parser) equality() (Expr, error) {
 		if err != nil {
 			return nil, err
 		}
-		expr = Binary{expr, operator, right}
+		expr = &Binary{expr, operator, right}
 	}
 
 	return expr, nil
@@ -395,7 +395,7 @@ func (p *Parser) comparison() (Expr, error) {
 		if err != nil {
 			return nil, err
 		}
-		expr = Binary{expr, operator, right}
+		expr = &Binary{expr, operator, right}
 	}
 
 	return expr, nil
@@ -413,7 +413,7 @@ func (p *Parser) term() (Expr, error) {
 		if err != nil {
 			return nil, err
 		}
-		expr = Binary{expr, operator, right}
+		expr = &Binary{expr, operator, right}
 	}
 
 	return expr, nil
@@ -431,7 +431,7 @@ func (p *Parser) factor() (Expr, error) {
 		if err != nil {
 			return nil, err
 		}
-		expr = Binary{expr, operator, right}
+		expr = &Binary{expr, operator, right}
 	}
 
 	return expr, nil
@@ -444,7 +444,7 @@ func (p *Parser) unary() (Expr, error) {
 		if err != nil {
 			return nil, err
 		}
-		return Unary{operator, right}, nil
+		return &Unary{operator, right}, nil
 	}
 
 	return p.call()
@@ -493,26 +493,26 @@ func (p *Parser) finishCall(callee Expr) (Expr, error) {
 		return nil, err
 	}
 
-	return Call{callee, paren, arguments}, nil
+	return &Call{callee, paren, arguments}, nil
 }
 
 func (p *Parser) primary() (Expr, error) {
 	if p.match(FALSE) {
-		return Literal{false}, nil
+		return &Literal{false}, nil
 	}
 	if p.match(TRUE) {
-		return Literal{true}, nil
+		return &Literal{true}, nil
 	}
 	if p.match(NIL) {
-		return Literal{nil}, nil
+		return &Literal{nil}, nil
 	}
 
 	if p.match(NUMBER, STRING) {
-		return Literal{p.previous().literal}, nil
+		return &Literal{p.previous().literal}, nil
 	}
 
 	if p.match(IDENTIFIER) {
-		return Variable{p.previous()}, nil
+		return &Variable{p.previous()}, nil
 	}
 
 	if p.match(LEFT_PAREN) {
@@ -524,7 +524,7 @@ func (p *Parser) primary() (Expr, error) {
 		if err != nil {
 			return nil, err
 		}
-		return Grouping{expr}, nil
+		return &Grouping{expr}, nil
 	}
 
 	log_parse_error(p.peek(), "Expect expression.")
