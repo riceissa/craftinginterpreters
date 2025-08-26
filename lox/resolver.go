@@ -8,15 +8,15 @@ const (
 )
 
 type Resolver struct {
-	interpreter *Interpreter
-	scopes []map[string]bool
+	interpreter     *Interpreter
+	scopes          []map[string]bool
 	currentFunction FunctionType
 }
 
 func NewResolver(interpreter *Interpreter) *Resolver {
 	return &Resolver{
-		interpreter: interpreter,
-		scopes: nil,
+		interpreter:     interpreter,
+		scopes:          nil,
 		currentFunction: FT_NONE,
 	}
 }
@@ -101,7 +101,7 @@ func (r *Resolver) resolveAssignExpr(expr *Assign) {
 
 func (r *Resolver) resolveVariableExpr(expr *Variable) {
 	if len(r.scopes) > 0 {
-		v, ok := r.scopes[len(r.scopes) - 1][expr.name.lexeme]
+		v, ok := r.scopes[len(r.scopes)-1][expr.name.lexeme]
 		if ok && !v {
 			log_parse_error(expr.name, "Can't read local variable in its own initializer.")
 		}
@@ -123,7 +123,7 @@ func (r *Resolver) declare(name Token) {
 		return
 	}
 
-	scope := r.scopes[len(r.scopes) - 1]
+	scope := r.scopes[len(r.scopes)-1]
 	if _, ok := scope[name.lexeme]; ok {
 		log_parse_error(name, "Already a variable with this name in this scope")
 	}
@@ -134,13 +134,13 @@ func (r *Resolver) define(name Token) {
 	if len(r.scopes) == 0 {
 		return
 	}
-	r.scopes[len(r.scopes) - 1][name.lexeme] = true
+	r.scopes[len(r.scopes)-1][name.lexeme] = true
 }
 
 func (r *Resolver) resolveLocal(expr Expr, name Token) {
 	for i := len(r.scopes) - 1; i >= 0; i-- {
 		if _, ok := r.scopes[i][name.lexeme]; ok {
-			r.resolve(expr, len(r.scopes) - 1 - i)
+			r.resolve(expr, len(r.scopes)-1-i)
 			return
 		}
 	}

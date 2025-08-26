@@ -27,7 +27,7 @@ func NewInterpreter() Interpreter {
 	result := Interpreter{
 		globals:     &environment,
 		environment: &environment,
-		locals: make(map[Expr]int),
+		locals:      make(map[Expr]int),
 	}
 
 	result.globals.define("clock", LoxNativeFunction{

@@ -78,13 +78,17 @@ func run(source string) {
 
 	// fmt.Print(print_statements(statements, 0))
 
-	if hadError { return }
+	if hadError {
+		return
+	}
 
 	resolver := NewResolver(&interpreter)
 	resolver.resolveStatements(statements)
 
 	// Stop if there was a resolution error.
-	if hadError { return }
+	if hadError {
+		return
+	}
 
 	interpreter.interpret(statements)
 	// fmt.Println(print_expr(expression))

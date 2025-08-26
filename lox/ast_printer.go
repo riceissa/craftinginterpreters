@@ -34,9 +34,9 @@ func print_stmt(stmt Stmt, indent int) string {
 	case Var:
 		return fmt.Sprintf("%v<var: %v = %v>\n", print_indent(indent), v.name, print_expr(v.initializer))
 	case Block:
-		return fmt.Sprintf("%v<block: \n%v\n%v>\n", print_indent(indent), print_statements(v.statements, indent + 4), print_indent(indent))
+		return fmt.Sprintf("%v<block: \n%v\n%v>\n", print_indent(indent), print_statements(v.statements, indent+4), print_indent(indent))
 	case While:
-		return fmt.Sprintf("%v<while: (%v)\n%v\n%v>\n", print_indent(indent), print_expr(v.condition), print_stmt(v.body, indent + 4), print_indent(indent))
+		return fmt.Sprintf("%v<while: (%v)\n%v\n%v>\n", print_indent(indent), print_expr(v.condition), print_stmt(v.body, indent+4), print_indent(indent))
 	case Function:
 		return print_indent(indent) + "<function>"
 	case Return:

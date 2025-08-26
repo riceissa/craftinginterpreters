@@ -6,7 +6,7 @@ import (
 
 type LoxFunction struct {
 	declaration Function
-	closure *Environment
+	closure     *Environment
 }
 
 func (f *LoxFunction) Arity() int {
