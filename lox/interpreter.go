@@ -279,6 +279,8 @@ func (i *Interpreter) lookUpVariable(name Token, expr Expr) (any, error) {
 
 func (i *Interpreter) evaluate(expr Expr) (any, error) {
 	switch v := expr.(type) {
+	case *Get:
+		return i.interpret_get_expr(v)
 	case *Logical:
 		return i.interpret_logical_expr(v)
 	case *Binary:
@@ -298,6 +300,22 @@ func (i *Interpreter) evaluate(expr Expr) (any, error) {
 	default:
 		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
 	}
+}
+
+func (i *Interpreter) interpret_get_expr(expr *Get) (any, error) {
+	object, err := i.evaluate(expr.object)
+	if err != nil {
+		return nil, err
+	}
+	if inst, ok := object.(LoxInstance); ok {
+		val, err := inst.get(expr.name)
+		if err != nil {
+			return nil, err
+		}
+		return val, nil
+	}
+
+	return nil, RuntimeError{expr.name, "Only instances have properties."}
 }
 
 func (i *Interpreter) interpret_binary_expr(expr *Binary) (any, error) {

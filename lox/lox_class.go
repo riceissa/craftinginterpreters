@@ -13,6 +13,6 @@ func (l *LoxClass) Arity() int {
 }
 
 func (l *LoxClass) Call(interpreter *Interpreter, arguments []any) (any, error) {
-	instance := &LoxInstance{l}
+	instance := NewLoxInstance(l)
 	return instance, nil
 }

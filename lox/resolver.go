@@ -54,6 +54,8 @@ func (r *Resolver) resolveStmt(stmt Stmt) {
 
 func (r *Resolver) resolveExpr(expr Expr) {
 	switch v := expr.(type) {
+	case *Get:
+		r.resolveGetExpr(v)
 	case *Assign:
 		r.resolveAssignExpr(v)
 	case *Variable:
@@ -74,6 +76,11 @@ func (r *Resolver) resolveExpr(expr Expr) {
 		panic("Unreachable.")
 	}
 }
+
+func (r *Resolver) resolveGetExpr(expr *Get) {
+	r.resolveExpr(expr.object)
+}
+
 
 func (r *Resolver) resolveBlockStmt(stmt Block) {
 	r.beginScope()

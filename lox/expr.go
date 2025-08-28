@@ -30,6 +30,11 @@ type Call struct {
 	arguments []Expr
 }
 
+type Get struct {
+	object Expr
+	name Token
+}
+
 type Grouping struct {
 	expression Expr
 }
@@ -55,6 +60,7 @@ type Variable struct {
 
 func (b *Binary) sealExpr()   {}
 func (c *Call) sealExpr()     {}
+func (g *Get) sealExpr()     {}
 func (g *Grouping) sealExpr() {}
 func (l *Literal) sealExpr()  {}
 func (l *Logical) sealExpr()  {}
