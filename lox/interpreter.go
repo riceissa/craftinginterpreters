@@ -166,7 +166,7 @@ func (i *Interpreter) interpret_block_stmt(stmt Block) (*ReturnedValue, error) {
 
 func (i *Interpreter) interpret_class_stmt(stmt Class) error {
 	i.environment.define(stmt.name.lexeme, nil)
-	klass := LoxClass{stmt.name.lexeme}
+	klass := &LoxClass{stmt.name.lexeme}
 	err := i.environment.assign(stmt.name, klass)
 	if err != nil {
 		return err

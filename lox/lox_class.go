@@ -4,6 +4,15 @@ type LoxClass struct {
 	name string
 }
 
-func (l LoxClass) String() string {
+func (l *LoxClass) String() string {
 	return l.name
+}
+
+func (l *LoxClass) Arity() int {
+	return 0
+}
+
+func (l *LoxClass) Call(interpreter *Interpreter, arguments []any) (any, error) {
+	instance := &LoxInstance{l}
+	return instance, nil
 }
