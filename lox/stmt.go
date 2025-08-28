@@ -9,7 +9,7 @@ type Block struct {
 }
 
 type Class struct {
-	name Token
+	name    Token
 	methods []Function
 }
 
