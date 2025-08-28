@@ -125,6 +125,8 @@ func (i *Interpreter) execute(stmt Stmt) (*ReturnedValue, error) {
 		return nil, i.interpret_function_stmt(v)
 	case Return:
 		return i.interpret_return_stmt(v) // This one actually returns a value
+	case Class:
+		return nil, i.interpret_class_stmt(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}
@@ -160,6 +162,16 @@ func (i *Interpreter) interpret_block_stmt(stmt Block) (*ReturnedValue, error) {
 	innerEnv.enclosing = i.environment
 	res, err := i.executeBlock(stmt.statements, &innerEnv)
 	return res, err
+}
+
+func (i *Interpreter) interpret_class_stmt(stmt Class) error {
+	i.environment.define(stmt.name.lexeme, nil)
+	klass := LoxClass{stmt.name.lexeme}
+	err := i.environment.assign(stmt.name, klass)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (i *Interpreter) interpret_if_stmt(stmt If) (*ReturnedValue, error) {
@@ -413,15 +425,18 @@ func stringify(object any) string {
 	if objectIsRV {
 		object = objectAsRV.value
 	}
-	switch object.(type) {
+	switch v := object.(type) {
 	case float64:
-		text := fmt.Sprintf("%v", object)
+		text := fmt.Sprintf("%v", v)
 		if strings.HasSuffix(text, ".0") {
 			text = text[0 : len(text)-2]
 		}
 		return text
 	default:
-		return fmt.Sprintf("%v", object)
+		if stringer, ok := (v).(fmt.Stringer); ok {
+			return stringer.String()
+		}
+		return fmt.Sprintf("%v", v)
 	}
 }
 

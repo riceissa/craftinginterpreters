@@ -8,6 +8,11 @@ type Block struct {
 	statements []Stmt
 }
 
+type Class struct {
+	name Token
+	methods []Function
+}
+
 type Expression struct {
 	expression Expr
 }
@@ -44,6 +49,7 @@ type While struct {
 }
 
 func (b Block) sealStmt()      {}
+func (c Class) sealStmt()      {}
 func (e Expression) sealStmt() {}
 func (f Function) sealStmt()   {}
 func (i If) sealStmt()         {}

@@ -1,4 +1,4 @@
-SRCS=lox/lox.go lox/scanner.go lox/token.go lox/token_type.go lox/ast_printer.go lox/expr.go lox/parser.go lox/interpreter.go lox/stmt.go lox/environment.go lox/lox_callable.go lox/lox_function.go lox/resolver.go
+SRCS=lox/lox.go lox/scanner.go lox/token.go lox/token_type.go lox/ast_printer.go lox/expr.go lox/parser.go lox/interpreter.go lox/stmt.go lox/environment.go lox/lox_callable.go lox/lox_function.go lox/resolver.go lox/lox_class.go
 
 .PHONY: all
 all: tags jlox

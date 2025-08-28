@@ -29,6 +29,8 @@ func (r *Resolver) resolveStatements(statements []Stmt) {
 
 func (r *Resolver) resolveStmt(stmt Stmt) {
 	switch v := stmt.(type) {
+	case Class:
+		r.resolveClassStmt(v)
 	case Block:
 		r.resolveBlockStmt(v)
 	case Function:
@@ -77,6 +79,11 @@ func (r *Resolver) resolveBlockStmt(stmt Block) {
 	r.beginScope()
 	r.resolveStatements(stmt.statements)
 	r.endScope()
+}
+
+func (r *Resolver) resolveClassStmt(stmt Class) {
+	r.declare(stmt.name)
+	r.define(stmt.name)
 }
 
 func (r *Resolver) resolveFunctionStmt(stmt Function) {
