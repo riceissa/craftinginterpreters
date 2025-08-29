@@ -5,6 +5,7 @@ type FunctionType int
 const (
 	FT_NONE = iota
 	FT_FUNCTION
+	FT_METHOD
 )
 
 type Resolver struct {
@@ -97,6 +98,11 @@ func (r *Resolver) resolveBlockStmt(stmt Block) {
 func (r *Resolver) resolveClassStmt(stmt Class) {
 	r.declare(stmt.name)
 	r.define(stmt.name)
+
+	for _, method := range stmt.methods {
+		var declaration FunctionType = FT_METHOD
+		r.resolveFunction(method, declaration)
+	}
 }
 
 func (r *Resolver) resolveFunctionStmt(stmt Function) {

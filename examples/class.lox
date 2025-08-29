@@ -11,4 +11,12 @@ class Bagel {}
 var bagel = Bagel();
 print bagel; // Prints "Bagel instance".
 bagel.topping = "cream cheese";
-print bagel.topping;
+print bagel.topping;  // Prints "cream cheese".
+
+// Part 3
+class Bacon {
+  eat() {
+    print "Crunch crunch crunch!";
+  }
+}
+Bacon().eat(); // Prints "Crunch crunch crunch!".

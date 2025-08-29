@@ -20,6 +20,12 @@ func (l *LoxInstance) get(name Token) (any, error) {
 	if val, ok := l.fields[name.lexeme]; ok {
 		return val, nil
 	}
+
+	method := l.klass.findMethod(name.lexeme)
+	if method != nil {
+		return method, nil
+	}
+
 	return nil, RuntimeError{name, fmt.Sprintf("Undefined property %q.", name.lexeme)}
 }
 
