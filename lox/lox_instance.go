@@ -5,13 +5,13 @@ import (
 )
 
 type LoxInstance struct {
-	klass *LoxClass
+	klass  *LoxClass
 	fields map[string]any
 }
 
 func NewLoxInstance(klass *LoxClass) *LoxInstance {
 	return &LoxInstance{
-		klass: klass,
+		klass:  klass,
 		fields: make(map[string]any),
 	}
 }

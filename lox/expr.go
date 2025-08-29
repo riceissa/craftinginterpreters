@@ -32,7 +32,7 @@ type Call struct {
 
 type Get struct {
 	object Expr
-	name Token
+	name   Token
 }
 
 type Grouping struct {
@@ -51,8 +51,8 @@ type Logical struct {
 
 type Set struct {
 	object Expr
-	name Token
-	value Expr
+	name   Token
+	value  Expr
 }
 
 type Unary struct {
@@ -66,11 +66,11 @@ type Variable struct {
 
 func (b *Binary) sealExpr()   {}
 func (c *Call) sealExpr()     {}
-func (g *Get) sealExpr()     {}
+func (g *Get) sealExpr()      {}
 func (g *Grouping) sealExpr() {}
 func (l *Literal) sealExpr()  {}
 func (l *Logical) sealExpr()  {}
-func (s *Set) sealExpr()  {}
+func (s *Set) sealExpr()      {}
 func (u *Unary) sealExpr()    {}
 func (v *Variable) sealExpr() {}
 func (a *Assign) sealExpr()   {}
