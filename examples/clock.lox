@@ -1,0 +1,11 @@
+print clock();
+
+var k = 0;
+for (var i = 0; i < 1000000; i = i + 1) {
+  k = k + 20;
+}
+
+print "k =";
+print k;
+
+print clock();

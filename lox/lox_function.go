@@ -44,8 +44,8 @@ func (n *LoxNativeFunction) Arity() int {
 	return n.arity
 }
 
-func (n *LoxNativeFunction) Call(interpreter *Interpreter, arguments []any) any {
-	return n.fn(interpreter, arguments)
+func (n *LoxNativeFunction) Call(interpreter *Interpreter, arguments []any) (any, error) {
+	return n.fn(interpreter, arguments), nil
 }
 
 func (n *LoxNativeFunction) String() string {

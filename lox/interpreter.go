@@ -30,7 +30,7 @@ func NewInterpreter() Interpreter {
 		locals:      make(map[Expr]int),
 	}
 
-	result.globals.define("clock", LoxNativeFunction{
+	result.globals.define("clock", &LoxNativeFunction{
 		arity: 0,
 		fn: func(interpreter *Interpreter, arguments []any) any {
 			return float64(time.Now().UnixMilli()) / 1000.0
