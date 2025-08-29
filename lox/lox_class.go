@@ -1,7 +1,7 @@
 package main
 
 type LoxClass struct {
-	name string
+	name    string
 	methods map[string]*LoxFunction
 }
 
