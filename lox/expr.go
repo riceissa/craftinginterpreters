@@ -74,3 +74,15 @@ func (s *Set) sealExpr()      {}
 func (u *Unary) sealExpr()    {}
 func (v *Variable) sealExpr() {}
 func (a *Assign) sealExpr()   {}
+
+// Assert we've correctly implemented the interface.
+var _ Expr = &Binary{}
+var _ Expr = &Call{}
+var _ Expr = &Get{}
+var _ Expr = &Grouping{}
+var _ Expr = &Literal{}
+var _ Expr = &Logical{}
+var _ Expr = &Set{}
+var _ Expr = &Unary{}
+var _ Expr = &Variable{}
+var _ Expr = &Assign{}
