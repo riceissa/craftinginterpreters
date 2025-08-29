@@ -20,7 +20,11 @@ func (l *LoxInstance) get(name Token) (any, error) {
 	if val, ok := l.fields[name.lexeme]; ok {
 		return val, nil
 	}
-	return nil, RuntimeError{name, fmt.Sprintf("Undefined property %q.")}
+	return nil, RuntimeError{name, fmt.Sprintf("Undefined property %q.", name.lexeme)}
+}
+
+func (l *LoxInstance) set(name Token, value any) {
+	l.fields[name.lexeme] = value
 }
 
 func (l *LoxInstance) String() string {

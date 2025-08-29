@@ -281,6 +281,8 @@ func (i *Interpreter) evaluate(expr Expr) (any, error) {
 	switch v := expr.(type) {
 	case *Get:
 		return i.interpret_get_expr(v)
+	case *Set:
+		return i.interpret_set_expr(v)
 	case *Logical:
 		return i.interpret_logical_expr(v)
 	case *Binary:
@@ -302,12 +304,30 @@ func (i *Interpreter) evaluate(expr Expr) (any, error) {
 	}
 }
 
+func (i *Interpreter) interpret_set_expr(expr *Set) (any, error) {
+	object, err := i.evaluate(expr.object)
+	if err != nil {
+		return nil, err
+	}
+
+	if inst, ok := object.(*LoxInstance); !ok {
+		return nil, RuntimeError{expr.name, "Only instances have fields."}
+	} else {
+		value, err := i.evaluate(expr.value)
+		if err != nil {
+			return nil, err
+		}
+		inst.set(expr.name, value)
+		return value, nil
+	}
+}
+
 func (i *Interpreter) interpret_get_expr(expr *Get) (any, error) {
 	object, err := i.evaluate(expr.object)
 	if err != nil {
 		return nil, err
 	}
-	if inst, ok := object.(LoxInstance); ok {
+	if inst, ok := object.(*LoxInstance); ok {
 		val, err := inst.get(expr.name)
 		if err != nil {
 			return nil, err

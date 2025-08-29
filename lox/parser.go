@@ -300,7 +300,7 @@ func (p *Parser) assignment() (Expr, error) {
 	}
 
 	if p.match(EQUAL) {
-		equals := p.previous()
+		_ = p.previous()
 		value, err := p.assignment()
 		if err != nil {
 			return nil, err
@@ -310,8 +310,10 @@ func (p *Parser) assignment() (Expr, error) {
 		case *Variable:
 			var name Token = v.name
 			return &Assign{name, value}, nil
+		case *Get:
+			return &Set{v.object, v.name, value}, nil
 		default:
-			fmt.Printf("Invalid assignment target: %q", equals)
+			fmt.Printf("Invalid assignment target: %q\n", stringify(v))
 		}
 	}
 

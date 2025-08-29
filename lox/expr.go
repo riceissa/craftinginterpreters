@@ -49,6 +49,12 @@ type Logical struct {
 	right    Expr
 }
 
+type Set struct {
+	object Expr
+	name Token
+	value Expr
+}
+
 type Unary struct {
 	operator Token
 	right    Expr
@@ -64,6 +70,7 @@ func (g *Get) sealExpr()     {}
 func (g *Grouping) sealExpr() {}
 func (l *Literal) sealExpr()  {}
 func (l *Logical) sealExpr()  {}
+func (s *Set) sealExpr()  {}
 func (u *Unary) sealExpr()    {}
 func (v *Variable) sealExpr() {}
 func (a *Assign) sealExpr()   {}
