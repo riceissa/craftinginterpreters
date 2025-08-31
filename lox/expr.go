@@ -55,6 +55,10 @@ type Set struct {
 	value  Expr
 }
 
+type This struct {
+	keyword Token
+}
+
 type Unary struct {
 	operator Token
 	right    Expr
@@ -71,6 +75,7 @@ func (g *Grouping) sealExpr() {}
 func (l *Literal) sealExpr()  {}
 func (l *Logical) sealExpr()  {}
 func (s *Set) sealExpr()      {}
+func (t *This) sealExpr()      {}
 func (u *Unary) sealExpr()    {}
 func (v *Variable) sealExpr() {}
 func (a *Assign) sealExpr()   {}
@@ -83,6 +88,7 @@ var _ Expr = &Grouping{}
 var _ Expr = &Literal{}
 var _ Expr = &Logical{}
 var _ Expr = &Set{}
+var _ Expr = &This{}
 var _ Expr = &Unary{}
 var _ Expr = &Variable{}
 var _ Expr = &Assign{}

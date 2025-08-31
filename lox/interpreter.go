@@ -290,6 +290,8 @@ func (i *Interpreter) evaluate(expr Expr) (any, error) {
 		return i.interpret_get_expr(v)
 	case *Set:
 		return i.interpret_set_expr(v)
+	case *This:
+		return i.interpret_this_expr(v)
 	case *Logical:
 		return i.interpret_logical_expr(v)
 	case *Binary:
@@ -327,6 +329,10 @@ func (i *Interpreter) interpret_set_expr(expr *Set) (any, error) {
 		inst.set(expr.name, value)
 		return value, nil
 	}
+}
+
+func (i *Interpreter) interpret_this_expr(expr *This) (any, error) {
+	return i.lookUpVariable(expr.keyword, expr)
 }
 
 func (i *Interpreter) interpret_get_expr(expr *Get) (any, error) {

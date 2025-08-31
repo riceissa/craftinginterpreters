@@ -34,6 +34,13 @@ func (f *LoxFunction) Call(interpreter *Interpreter, arguments []any) (any, erro
 	return nil, nil
 }
 
+func (l *LoxFunction) bind(instance *LoxInstance) *LoxFunction {
+	environment := NewEnvironment()
+	environment.enclosing = l.closure
+	environment.define("this", instance)
+	return &LoxFunction{l.declaration, &environment}
+}
+
 type LoxNativeFunction struct {
 	arity int
 	fn    func(*Interpreter, []any) any

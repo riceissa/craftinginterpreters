@@ -549,6 +549,10 @@ func (p *Parser) primary() (Expr, error) {
 		return &Literal{p.previous().literal}, nil
 	}
 
+	if p.match(THIS) {
+		return &This{p.previous()}, nil
+	}
+
 	if p.match(IDENTIFIER) {
 		return &Variable{p.previous()}, nil
 	}

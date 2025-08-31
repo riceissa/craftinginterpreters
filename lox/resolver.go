@@ -73,6 +73,8 @@ func (r *Resolver) resolveExpr(expr Expr) {
 		r.resolveLiteralExpr(v)
 	case *Logical:
 		r.resolveLogicalExpr(v)
+	case *This:
+		r.resolveThisExpr(v)
 	case *Unary:
 		r.resolveUnaryExpr(v)
 	default:
@@ -83,6 +85,10 @@ func (r *Resolver) resolveExpr(expr Expr) {
 func (r *Resolver) resolveSetExpr(expr *Set) {
 	r.resolveExpr(expr.value)
 	r.resolveExpr(expr.object)
+}
+
+func (r *Resolver) resolveThisExpr(expr *This) {
+	r.resolveLocal(expr, expr.keyword)
 }
 
 func (r *Resolver) resolveGetExpr(expr *Get) {
@@ -99,10 +105,15 @@ func (r *Resolver) resolveClassStmt(stmt Class) {
 	r.declare(stmt.name)
 	r.define(stmt.name)
 
+	r.beginScope()
+	r.scopes[len(r.scopes) - 1]["this"] = true
+
 	for _, method := range stmt.methods {
 		var declaration FunctionType = FT_METHOD
 		r.resolveFunction(method, declaration)
 	}
+
+	r.endScope()
 }
 
 func (r *Resolver) resolveFunctionStmt(stmt Function) {
