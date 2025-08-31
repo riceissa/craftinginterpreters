@@ -25,7 +25,7 @@ func (l *LoxClass) Call(interpreter *Interpreter, arguments []any) (any, error) 
 	instance := NewLoxInstance(l)
 	initializer := l.findMethod("init")
 	if initializer != nil {
-		initializer.bind(instance).call(interpreter, arguments)
+		initializer.bind(instance).Call(interpreter, arguments)
 	}
 
 	return instance, nil

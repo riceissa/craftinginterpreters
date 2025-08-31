@@ -30,11 +30,10 @@ func (f *LoxFunction) Call(interpreter *Interpreter, arguments []any) (any, erro
 		return nil, err
 	}
 	if result != nil {
+		if f.isInitializer {
+			return f.closure.getAt(0, "this"), nil
+		}
 		return result.value, nil
-	}
-
-	if f.isInitializer {
-		return f.closure.getAt(0, "this")
 	}
 
 	return nil, nil
