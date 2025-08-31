@@ -1,6 +1,7 @@
 package main
 
 type FunctionType int
+
 const (
 	FT_NONE = iota
 	FT_FUNCTION
@@ -9,6 +10,7 @@ const (
 )
 
 type ClassType int
+
 const (
 	CT_NONE = iota
 	CT_CLASS
@@ -18,7 +20,7 @@ type Resolver struct {
 	interpreter     *Interpreter
 	scopes          []map[string]bool
 	currentFunction FunctionType
-	currentClass ClassType
+	currentClass    ClassType
 }
 
 func NewResolver(interpreter *Interpreter) *Resolver {
@@ -26,7 +28,7 @@ func NewResolver(interpreter *Interpreter) *Resolver {
 		interpreter:     interpreter,
 		scopes:          nil,
 		currentFunction: FT_NONE,
-		currentClass: CT_NONE,
+		currentClass:    CT_NONE,
 	}
 }
 
