@@ -32,3 +32,17 @@ class Cake {
 var cake = Cake();
 cake.flavor = "German chocolate";
 cake.taste(); // Prints "The German chocolate cake is delicious!".
+
+// Part 5
+class Foo {
+  init(bar) {
+    this.bar = bar;
+  }
+
+  echo() {
+    print this;
+    print this.bar;
+  }
+}
+var foo = Foo("I am bar");
+foo.echo();
