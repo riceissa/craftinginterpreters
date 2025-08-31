@@ -1,17 +1,23 @@
 package main
 
 type FunctionType int
-
 const (
 	FT_NONE = iota
 	FT_FUNCTION
 	FT_METHOD
 )
 
+type ClassType int
+const (
+	CT_NONE = iota
+	CT_CLASS
+)
+
 type Resolver struct {
 	interpreter     *Interpreter
 	scopes          []map[string]bool
 	currentFunction FunctionType
+	currentClass ClassType
 }
 
 func NewResolver(interpreter *Interpreter) *Resolver {
@@ -19,6 +25,7 @@ func NewResolver(interpreter *Interpreter) *Resolver {
 		interpreter:     interpreter,
 		scopes:          nil,
 		currentFunction: FT_NONE,
+		currentClass: CT_NONE,
 	}
 }
 
@@ -88,6 +95,10 @@ func (r *Resolver) resolveSetExpr(expr *Set) {
 }
 
 func (r *Resolver) resolveThisExpr(expr *This) {
+	if r.currentClass == CT_NONE {
+		log_parse_error(expr.keyword, "Can't use 'this' outside of a class.")
+		return
+	}
 	r.resolveLocal(expr, expr.keyword)
 }
 
@@ -102,6 +113,9 @@ func (r *Resolver) resolveBlockStmt(stmt Block) {
 }
 
 func (r *Resolver) resolveClassStmt(stmt Class) {
+	enclosingClass := r.currentClass
+	r.currentClass = CT_CLASS
+
 	r.declare(stmt.name)
 	r.define(stmt.name)
 
@@ -114,6 +128,8 @@ func (r *Resolver) resolveClassStmt(stmt Class) {
 	}
 
 	r.endScope()
+
+	r.currentClass = enclosingClass
 }
 
 func (r *Resolver) resolveFunctionStmt(stmt Function) {
