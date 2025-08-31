@@ -42,7 +42,7 @@ func NewInterpreter() Interpreter {
 }
 
 func (i *Interpreter) interpret_function_stmt(stmt Function) error {
-	function := &LoxFunction{stmt, i.environment}
+	function := &LoxFunction{stmt, i.environment, false}
 	i.environment.define(stmt.name.lexeme, function)
 	return nil
 }
@@ -169,7 +169,7 @@ func (i *Interpreter) interpret_class_stmt(stmt Class) error {
 
 	methods := make(map[string]*LoxFunction)
 	for _, method := range stmt.methods {
-		function := &LoxFunction{method, i.environment}
+		function := &LoxFunction{method, i.environment, method.name.lexeme == "init"}
 		methods[method.name.lexeme] = function
 	}
 

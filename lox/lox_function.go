@@ -7,6 +7,7 @@ import (
 type LoxFunction struct {
 	declaration Function
 	closure     *Environment
+	isInitializer bool
 }
 
 func (f *LoxFunction) Arity() int {
@@ -31,6 +32,11 @@ func (f *LoxFunction) Call(interpreter *Interpreter, arguments []any) (any, erro
 	if result != nil {
 		return result.value, nil
 	}
+
+	if f.isInitializer {
+		return f.closure.getAt(0, "this")
+	}
+
 	return nil, nil
 }
 
@@ -38,7 +44,7 @@ func (l *LoxFunction) bind(instance *LoxInstance) *LoxFunction {
 	environment := NewEnvironment()
 	environment.enclosing = l.closure
 	environment.define("this", instance)
-	return &LoxFunction{l.declaration, &environment}
+	return &LoxFunction{l.declaration, &environment, l.isInitializer}
 }
 
 type LoxNativeFunction struct {

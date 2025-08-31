@@ -14,10 +14,19 @@ func (l *LoxClass) String() string {
 }
 
 func (l *LoxClass) Arity() int {
-	return 0
+	initializer := l.findMethod("init")
+	if initializer == nil {
+		return 0
+	}
+	return initializer.Arity()
 }
 
 func (l *LoxClass) Call(interpreter *Interpreter, arguments []any) (any, error) {
 	instance := NewLoxInstance(l)
+	initializer := l.findMethod("init")
+	if initializer != nil {
+		initializer.bind(instance).call(interpreter, arguments)
+	}
+
 	return instance, nil
 }

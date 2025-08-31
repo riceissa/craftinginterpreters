@@ -4,6 +4,7 @@ type FunctionType int
 const (
 	FT_NONE = iota
 	FT_FUNCTION
+	FT_INITIALIZER
 	FT_METHOD
 )
 
@@ -124,6 +125,9 @@ func (r *Resolver) resolveClassStmt(stmt Class) {
 
 	for _, method := range stmt.methods {
 		var declaration FunctionType = FT_METHOD
+		if method.name.lexeme == "init" {
+			declaration = FT_INITIALIZER
+		}
 		r.resolveFunction(method, declaration)
 	}
 
@@ -235,6 +239,10 @@ func (r *Resolver) resolveReturnStmt(stmt Return) {
 	}
 
 	if stmt.value != nil {
+		if r.currentFunction == FT_INITIALIZER {
+			log_parse_error(stmt.keyword, "Can't return a value from an initializer.")
+		}
+
 		r.resolveExpr(stmt.value)
 	}
 }
