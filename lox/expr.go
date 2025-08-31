@@ -75,7 +75,7 @@ func (g *Grouping) sealExpr() {}
 func (l *Literal) sealExpr()  {}
 func (l *Logical) sealExpr()  {}
 func (s *Set) sealExpr()      {}
-func (t *This) sealExpr()      {}
+func (t *This) sealExpr()     {}
 func (u *Unary) sealExpr()    {}
 func (v *Variable) sealExpr() {}
 func (a *Assign) sealExpr()   {}

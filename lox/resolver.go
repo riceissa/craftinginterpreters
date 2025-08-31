@@ -106,7 +106,7 @@ func (r *Resolver) resolveClassStmt(stmt Class) {
 	r.define(stmt.name)
 
 	r.beginScope()
-	r.scopes[len(r.scopes) - 1]["this"] = true
+	r.scopes[len(r.scopes)-1]["this"] = true
 
 	for _, method := range stmt.methods {
 		var declaration FunctionType = FT_METHOD
