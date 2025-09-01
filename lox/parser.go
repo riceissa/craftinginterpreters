@@ -354,6 +354,21 @@ func (p *Parser) classDeclaration() (Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	var superclass *Variable = nil
+	if p.match(LESS) {
+		_, err = p.consume(IDENTIFIER, "Expect superclass name.")
+		if err != nil {
+			return nil, err
+		}
+		superclass = &Variable{p.previous()}
+		// Kind of weird how the book does it here... Why not just
+		// consume and then take the name from the consume call?
+		// Why consume without assigning to a name, and then make
+		// a separate call to previous?
+	}
+
+
 	_, err = p.consume(LEFT_BRACE, "Expect '{' before class body.")
 	if err != nil {
 		return nil, err
@@ -373,7 +388,7 @@ func (p *Parser) classDeclaration() (Stmt, error) {
 		return nil, err
 	}
 
-	return Class{name, methods}, nil
+	return Class{name, superclass, methods}, nil
 }
 
 func (p *Parser) varDeclaration() (Stmt, error) {

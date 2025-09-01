@@ -122,6 +122,16 @@ func (r *Resolver) resolveClassStmt(stmt Class) {
 	r.declare(stmt.name)
 	r.define(stmt.name)
 
+	if stmt.superclass != nil && stmt.name.lexeme == stmt.superclass.name.lexeme {
+		// Why do we detect just a simple cycle like this? Why not more
+		// complicated cycles?
+		log_parse_error(stmt.superclass.name, "A class can't inherit from itself.")
+	}
+
+	if stmt.superclass != nil {
+		r.resolveExpr(stmt.superclass)
+	}
+
 	r.beginScope()
 	r.scopes[len(r.scopes)-1]["this"] = true
 

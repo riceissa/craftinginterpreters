@@ -165,6 +165,20 @@ func (i *Interpreter) interpret_block_stmt(stmt Block) (*ReturnedValue, error) {
 }
 
 func (i *Interpreter) interpret_class_stmt(stmt Class) error {
+	var superclass *LoxClass = nil
+	if stmt.superclass != nil {
+		sc, err := i.evaluate(stmt.superclass)
+		if err != nil {
+			return err
+		}
+		var ok bool
+		superclass, ok = sc.(*LoxClass)
+		if !ok {
+			return RuntimeError{stmt.superclass.name, "Superclass must be a class."}
+		}
+	}
+
+
 	i.environment.define(stmt.name.lexeme, nil)
 
 	methods := make(map[string]*LoxFunction)
@@ -173,7 +187,7 @@ func (i *Interpreter) interpret_class_stmt(stmt Class) error {
 		methods[method.name.lexeme] = function
 	}
 
-	klass := &LoxClass{stmt.name.lexeme, methods}
+	klass := &LoxClass{stmt.name.lexeme, superclass, methods}
 	err := i.environment.assign(stmt.name, klass)
 	if err != nil {
 		return err
