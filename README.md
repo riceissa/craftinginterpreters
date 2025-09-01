@@ -2,6 +2,15 @@
 
 You can read the book at https://craftinginterpreters.com/
 
+This repo contains my implementations of the Lox language from the book.
+There are two implementations: one is a tree-walk interpreter from Part II of
+the book, and the other is a bytecode virtual machine from Part III of
+the book. (The latter does not actually exist yet.)
+
+## Tree-walk interpreter
+
+The tree-walk interpreter is in the `tree-walk/` directory of the repo.
+
 I mostly just straightforwardly translate the interpreter from Java (which is
 what the book uses, for the first part) to Go. The biggest differences are:
 
@@ -13,4 +22,10 @@ what the book uses, for the first part) to Go. The biggest differences are:
 3. I didn't do the meta-programming thing from GenerateAst.java, since Go
    doesn't have as much boilerplate when defining structs.
 
-So far, everything up to and including Chapter 12 is done.
+Everything from Part II of the book has been implemented.
+
+## Bytecode virtual machine
+
+The bytecode virtual machine lives in the `bytecode/` directory of the repo.
+
+Work on the bytecode virtual machine has not begun yet.
