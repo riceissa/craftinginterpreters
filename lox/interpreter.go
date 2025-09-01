@@ -180,6 +180,13 @@ func (i *Interpreter) interpret_class_stmt(stmt Class) error {
 
 	i.environment.define(stmt.name.lexeme, nil)
 
+	if stmt.superclass != nil {
+		environment := NewEnvironment()
+		environment.enclosing = i.environment
+		i.environment = &environment
+		i.environment.define("super", superclass)
+	}
+
 	methods := make(map[string]*LoxFunction)
 	for _, method := range stmt.methods {
 		function := &LoxFunction{method, i.environment, method.name.lexeme == "init"}
@@ -187,6 +194,11 @@ func (i *Interpreter) interpret_class_stmt(stmt Class) error {
 	}
 
 	klass := &LoxClass{stmt.name.lexeme, superclass, methods}
+
+	if superclass != nil {
+		i.environment = i.environment.enclosing
+	}
+
 	err := i.environment.assign(stmt.name, klass)
 	if err != nil {
 		return err
@@ -303,6 +315,8 @@ func (i *Interpreter) evaluate(expr Expr) (any, error) {
 		return i.interpret_get_expr(v)
 	case *Set:
 		return i.interpret_set_expr(v)
+	case *Super:
+		return i.interpret_super_expr(v)
 	case *This:
 		return i.interpret_this_expr(v)
 	case *Logical:
@@ -342,6 +356,25 @@ func (i *Interpreter) interpret_set_expr(expr *Set) (any, error) {
 		inst.set(expr.name, value)
 		return value, nil
 	}
+}
+
+func (i *Interpreter) interpret_super_expr(expr *Super) (any, error) {
+	distance := i.locals[expr]
+	superclass, ok := i.environment.getAt(distance, "super").(*LoxClass)
+	if !ok {
+		return nil, RuntimeError{expr.keyword, "We tried to get the super of this expr, but it wasn't a *LoxClass."}
+	}
+
+	object, ok := i.environment.getAt(distance - 1, "this").(*LoxInstance)
+	if !ok {
+		return nil, RuntimeError{expr.keyword, "We tried to get the 'this' here, but it wasn't a *LoxInstance."}
+	}
+
+	method := superclass.findMethod(expr.method.lexeme)
+	if method == nil {
+		return nil, RuntimeError{expr.method, fmt.Sprintf("Undefined property %q.", expr.method.lexeme)}
+	}
+	return method.bind(object), nil
 }
 
 func (i *Interpreter) interpret_this_expr(expr *This) (any, error) {

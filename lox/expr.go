@@ -55,6 +55,11 @@ type Set struct {
 	value  Expr
 }
 
+type Super struct {
+	keyword Token
+	method Token
+}
+
 type This struct {
 	keyword Token
 }
@@ -75,6 +80,7 @@ func (g *Grouping) sealExpr() {}
 func (l *Literal) sealExpr()  {}
 func (l *Logical) sealExpr()  {}
 func (s *Set) sealExpr()      {}
+func (s *Super) sealExpr()      {}
 func (t *This) sealExpr()     {}
 func (u *Unary) sealExpr()    {}
 func (v *Variable) sealExpr() {}
@@ -88,6 +94,7 @@ var _ Expr = &Grouping{}
 var _ Expr = &Literal{}
 var _ Expr = &Logical{}
 var _ Expr = &Set{}
+var _ Expr = &Super{}
 var _ Expr = &This{}
 var _ Expr = &Unary{}
 var _ Expr = &Variable{}

@@ -69,6 +69,8 @@ func (r *Resolver) resolveExpr(expr Expr) {
 		r.resolveGetExpr(v)
 	case *Set:
 		r.resolveSetExpr(v)
+	case *Super:
+		r.resolveSuperExpr(v)
 	case *Assign:
 		r.resolveAssignExpr(v)
 	case *Variable:
@@ -95,6 +97,10 @@ func (r *Resolver) resolveExpr(expr Expr) {
 func (r *Resolver) resolveSetExpr(expr *Set) {
 	r.resolveExpr(expr.value)
 	r.resolveExpr(expr.object)
+}
+
+func (r *Resolver) resolveSuperExpr(expr *Super) {
+	r.resolveLocal(expr, expr.keyword)
 }
 
 func (r *Resolver) resolveThisExpr(expr *This) {
@@ -132,6 +138,11 @@ func (r *Resolver) resolveClassStmt(stmt Class) {
 		r.resolveExpr(stmt.superclass)
 	}
 
+	if stmt.superclass != nil {
+		r.beginScope()
+		r.scopes[len(r.scopes)-1]["super"] = true
+	}
+
 	r.beginScope()
 	r.scopes[len(r.scopes)-1]["this"] = true
 
@@ -144,6 +155,10 @@ func (r *Resolver) resolveClassStmt(stmt Class) {
 	}
 
 	r.endScope()
+
+	if stmt.superclass != nil {
+		r.endScope()
+	}
 
 	r.currentClass = enclosingClass
 }
