@@ -365,7 +365,7 @@ func (i *Interpreter) interpret_super_expr(expr *Super) (any, error) {
 		return nil, RuntimeError{expr.keyword, "We tried to get the super of this expr, but it wasn't a *LoxClass."}
 	}
 
-	object, ok := i.environment.getAt(distance - 1, "this").(*LoxInstance)
+	object, ok := i.environment.getAt(distance-1, "this").(*LoxInstance)
 	if !ok {
 		return nil, RuntimeError{expr.keyword, "We tried to get the 'this' here, but it wasn't a *LoxInstance."}
 	}

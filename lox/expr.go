@@ -57,7 +57,7 @@ type Set struct {
 
 type Super struct {
 	keyword Token
-	method Token
+	method  Token
 }
 
 type This struct {
@@ -80,7 +80,7 @@ func (g *Grouping) sealExpr() {}
 func (l *Literal) sealExpr()  {}
 func (l *Logical) sealExpr()  {}
 func (s *Set) sealExpr()      {}
-func (s *Super) sealExpr()      {}
+func (s *Super) sealExpr()    {}
 func (t *This) sealExpr()     {}
 func (u *Unary) sealExpr()    {}
 func (v *Variable) sealExpr() {}
