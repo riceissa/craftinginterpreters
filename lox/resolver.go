@@ -14,6 +14,7 @@ type ClassType int
 const (
 	CT_NONE = iota
 	CT_CLASS
+	CT_SUBCLASS
 )
 
 type Resolver struct {
@@ -100,6 +101,11 @@ func (r *Resolver) resolveSetExpr(expr *Set) {
 }
 
 func (r *Resolver) resolveSuperExpr(expr *Super) {
+	if r.currentClass == CT_NONE {
+		log_parse_error(expr.keyword, "Can't use 'super' outside of a class.")
+	} else if r.currentClass != CT_SUBCLASS {
+		log_parse_error(expr.keyword, "Can't use 'super' in a class with no superclass.")
+	}
 	r.resolveLocal(expr, expr.keyword)
 }
 
@@ -135,6 +141,7 @@ func (r *Resolver) resolveClassStmt(stmt Class) {
 	}
 
 	if stmt.superclass != nil {
+		r.currentClass = CT_SUBCLASS
 		r.resolveExpr(stmt.superclass)
 	}
 
