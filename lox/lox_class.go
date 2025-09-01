@@ -1,9 +1,9 @@
 package main
 
 type LoxClass struct {
-	name    string
+	name       string
 	superclass *LoxClass
-	methods map[string]*LoxFunction
+	methods    map[string]*LoxFunction
 }
 
 func (l *LoxClass) findMethod(name string) *LoxFunction {

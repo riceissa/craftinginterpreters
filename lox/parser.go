@@ -368,7 +368,6 @@ func (p *Parser) classDeclaration() (Stmt, error) {
 		// a separate call to previous?
 	}
 
-
 	_, err = p.consume(LEFT_BRACE, "Expect '{' before class body.")
 	if err != nil {
 		return nil, err

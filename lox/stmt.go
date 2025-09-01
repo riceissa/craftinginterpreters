@@ -9,9 +9,9 @@ type Block struct {
 }
 
 type Class struct {
-	name    Token
+	name       Token
 	superclass *Variable
-	methods []Function
+	methods    []Function
 }
 
 type Expression struct {

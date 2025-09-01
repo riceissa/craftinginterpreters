@@ -178,7 +178,6 @@ func (i *Interpreter) interpret_class_stmt(stmt Class) error {
 		}
 	}
 
-
 	i.environment.define(stmt.name.lexeme, nil)
 
 	methods := make(map[string]*LoxFunction)
