@@ -41,7 +41,7 @@ func NewInterpreter() Interpreter {
 	return result
 }
 
-func (i *Interpreter) interpret_function_stmt(stmt Function) error {
+func (i *Interpreter) interpretFunctionStmt(stmt Function) error {
 	function := &LoxFunction{stmt, i.environment, false}
 	i.environment.define(stmt.name.lexeme, function)
 	return nil
@@ -58,7 +58,7 @@ func (i *Interpreter) interpret(statements []Stmt) {
 	}
 }
 
-func (i *Interpreter) interpret_call_expr(expr *Call) (any, error) {
+func (i *Interpreter) interpretCallExpr(expr *Call) (any, error) {
 	callee, err := i.evaluate(expr.callee)
 	if err != nil {
 		return nil, err
@@ -88,13 +88,13 @@ func (i *Interpreter) interpret_call_expr(expr *Call) (any, error) {
 	return function.Call(i, arguments)
 }
 
-func (i *Interpreter) interpret_logical_expr(expr *Logical) (any, error) {
+func (i *Interpreter) interpretLogicalExpr(expr *Logical) (any, error) {
 	left, err := i.evaluate(expr.left)
 	if err != nil {
 		return nil, err
 	}
 
-	if expr.operator.token_type == OR {
+	if expr.operator.tokenType == OR {
 		if isTruthy(left) {
 			return left, nil
 		}
@@ -110,23 +110,23 @@ func (i *Interpreter) interpret_logical_expr(expr *Logical) (any, error) {
 func (i *Interpreter) execute(stmt Stmt) (*ReturnedValue, error) {
 	switch v := stmt.(type) {
 	case If:
-		return i.interpret_if_stmt(v)
+		return i.interpretIfStmt(v)
 	case Print:
-		return nil, i.interpret_print_stmt(v)
+		return nil, i.interpretPrintStmt(v)
 	case Expression:
-		return nil, i.interpret_expression_stmt(v)
+		return nil, i.interpretExpressionStmt(v)
 	case Var:
-		return nil, i.interpret_var_stmt(v)
+		return nil, i.interpretVarStmt(v)
 	case Block:
-		return i.interpret_block_stmt(v)
+		return i.interpretBlockStmt(v)
 	case While:
-		return i.interpret_while_stmt(v)
+		return i.interpretWhileStmt(v)
 	case Function:
-		return nil, i.interpret_function_stmt(v)
+		return nil, i.interpretFunctionStmt(v)
 	case Return:
-		return i.interpret_return_stmt(v) // This one actually returns a value
+		return i.interpretReturnStmt(v) // This one actually returns a value
 	case Class:
-		return nil, i.interpret_class_stmt(v)
+		return nil, i.interpretClassStmt(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
 	}
@@ -136,7 +136,7 @@ func (r *Resolver) resolve(expr Expr, depth int) {
 	r.interpreter.locals[expr] = depth
 }
 
-func (i *Interpreter) interpret_while_stmt(stmt While) (*ReturnedValue, error) {
+func (i *Interpreter) interpretWhileStmt(stmt While) (*ReturnedValue, error) {
 	for {
 		cond, err := i.evaluate(stmt.condition)
 		if err != nil {
@@ -157,14 +157,14 @@ func (i *Interpreter) interpret_while_stmt(stmt While) (*ReturnedValue, error) {
 	return nil, nil
 }
 
-func (i *Interpreter) interpret_block_stmt(stmt Block) (*ReturnedValue, error) {
+func (i *Interpreter) interpretBlockStmt(stmt Block) (*ReturnedValue, error) {
 	innerEnv := NewEnvironment()
 	innerEnv.enclosing = i.environment
 	res, err := i.executeBlock(stmt.statements, innerEnv)
 	return res, err
 }
 
-func (i *Interpreter) interpret_class_stmt(stmt Class) error {
+func (i *Interpreter) interpretClassStmt(stmt Class) error {
 	var superclass *LoxClass = nil
 	if stmt.superclass != nil {
 		sc, err := i.evaluate(stmt.superclass)
@@ -206,7 +206,7 @@ func (i *Interpreter) interpret_class_stmt(stmt Class) error {
 	return nil
 }
 
-func (i *Interpreter) interpret_if_stmt(stmt If) (*ReturnedValue, error) {
+func (i *Interpreter) interpretIfStmt(stmt If) (*ReturnedValue, error) {
 	cond, err := i.evaluate(stmt.condition)
 	if err != nil {
 		return nil, err
@@ -251,7 +251,7 @@ func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) 
 	return nil, nil
 }
 
-func (i *Interpreter) interpret_var_stmt(stmt Var) error {
+func (i *Interpreter) interpretVarStmt(stmt Var) error {
 	var value any
 	var err error
 	if stmt.initializer != nil {
@@ -266,7 +266,7 @@ func (i *Interpreter) interpret_var_stmt(stmt Var) error {
 	return nil
 }
 
-func (i *Interpreter) interpret_assign_expr(expr *Assign) (any, error) {
+func (i *Interpreter) interpretAssignExpr(expr *Assign) (any, error) {
 	value, err := i.evaluate(expr.value)
 	if err != nil {
 		return nil, err
@@ -296,7 +296,7 @@ func (e *Environment) assign(name Token, value any) error {
 	return RuntimeError{name, fmt.Sprintf("Inside assign: Undefined variable %q", name.lexeme)}
 }
 
-func (i *Interpreter) interpret_variable_expr(expr *Variable) (any, error) {
+func (i *Interpreter) interpretVariableExpr(expr *Variable) (any, error) {
 	return i.lookUpVariable(expr.name, expr)
 }
 
@@ -312,35 +312,35 @@ func (i *Interpreter) lookUpVariable(name Token, expr Expr) (any, error) {
 func (i *Interpreter) evaluate(expr Expr) (any, error) {
 	switch v := expr.(type) {
 	case *Get:
-		return i.interpret_get_expr(v)
+		return i.interpretGetExpr(v)
 	case *Set:
-		return i.interpret_set_expr(v)
+		return i.interpretSetExpr(v)
 	case *Super:
-		return i.interpret_super_expr(v)
+		return i.interpretSuperExpr(v)
 	case *This:
-		return i.interpret_this_expr(v)
+		return i.interpretThisExpr(v)
 	case *Logical:
-		return i.interpret_logical_expr(v)
+		return i.interpretLogicalExpr(v)
 	case *Binary:
-		return i.interpret_binary_expr(v)
+		return i.interpretBinaryExpr(v)
 	case *Grouping:
-		return i.interpret_grouping_expr(v)
+		return i.interpretGroupingExpr(v)
 	case *Literal:
-		return interpret_literal_expr(v)
+		return interpretLiteralExpr(v)
 	case *Unary:
-		return i.interpret_unary_expr(v)
+		return i.interpretUnaryExpr(v)
 	case *Variable:
-		return i.interpret_variable_expr(v)
+		return i.interpretVariableExpr(v)
 	case *Assign:
-		return i.interpret_assign_expr(v)
+		return i.interpretAssignExpr(v)
 	case *Call:
-		return i.interpret_call_expr(v)
+		return i.interpretCallExpr(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. expr has value %v; its type is %T which we don't know how to handle.", expr, expr))
 	}
 }
 
-func (i *Interpreter) interpret_set_expr(expr *Set) (any, error) {
+func (i *Interpreter) interpretSetExpr(expr *Set) (any, error) {
 	object, err := i.evaluate(expr.object)
 	if err != nil {
 		return nil, err
@@ -358,7 +358,7 @@ func (i *Interpreter) interpret_set_expr(expr *Set) (any, error) {
 	}
 }
 
-func (i *Interpreter) interpret_super_expr(expr *Super) (any, error) {
+func (i *Interpreter) interpretSuperExpr(expr *Super) (any, error) {
 	distance := i.locals[expr]
 	superclass, ok := i.environment.getAt(distance, "super").(*LoxClass)
 	if !ok {
@@ -377,11 +377,11 @@ func (i *Interpreter) interpret_super_expr(expr *Super) (any, error) {
 	return method.bind(object), nil
 }
 
-func (i *Interpreter) interpret_this_expr(expr *This) (any, error) {
+func (i *Interpreter) interpretThisExpr(expr *This) (any, error) {
 	return i.lookUpVariable(expr.keyword, expr)
 }
 
-func (i *Interpreter) interpret_get_expr(expr *Get) (any, error) {
+func (i *Interpreter) interpretGetExpr(expr *Get) (any, error) {
 	object, err := i.evaluate(expr.object)
 	if err != nil {
 		return nil, err
@@ -397,7 +397,7 @@ func (i *Interpreter) interpret_get_expr(expr *Get) (any, error) {
 	return nil, RuntimeError{expr.name, "Only instances have properties."}
 }
 
-func (i *Interpreter) interpret_binary_expr(expr *Binary) (any, error) {
+func (i *Interpreter) interpretBinaryExpr(expr *Binary) (any, error) {
 	left, _ := i.evaluate(expr.left)
 	right, _ := i.evaluate(expr.right)
 
@@ -410,7 +410,7 @@ func (i *Interpreter) interpret_binary_expr(expr *Binary) (any, error) {
 		right = rightRV.value
 	}
 
-	switch expr.operator.token_type {
+	switch expr.operator.tokenType {
 	// TODO: fix the rest of these to return the error early if checkNumberOperands fails. If we return the err on the same line as the result, then we actually panic if left/right are not numbers, which is not what we want.
 	case GREATER:
 		err := checkNumberOperands(expr.operator, left, right)
@@ -462,22 +462,22 @@ func (i *Interpreter) interpret_binary_expr(expr *Binary) (any, error) {
 	panic("Unreachable")
 }
 
-func (i *Interpreter) interpret_grouping_expr(expr *Grouping) (any, error) {
+func (i *Interpreter) interpretGroupingExpr(expr *Grouping) (any, error) {
 	result, err := i.evaluate(expr.expression)
 	return result, err
 }
 
-func interpret_literal_expr(expr *Literal) (any, error) {
+func interpretLiteralExpr(expr *Literal) (any, error) {
 	return expr.value, nil
 }
 
-func (i *Interpreter) interpret_unary_expr(expr *Unary) (any, error) {
+func (i *Interpreter) interpretUnaryExpr(expr *Unary) (any, error) {
 	right, err := i.evaluate(expr.right)
 	if err != nil {
 		return nil, err
 	}
 
-	switch expr.operator.token_type {
+	switch expr.operator.tokenType {
 	case BANG:
 		return !isTruthy(right), nil
 	case MINUS:
@@ -488,12 +488,12 @@ func (i *Interpreter) interpret_unary_expr(expr *Unary) (any, error) {
 	panic("Unreachable")
 }
 
-func (i *Interpreter) interpret_expression_stmt(stmt Expression) error {
+func (i *Interpreter) interpretExpressionStmt(stmt Expression) error {
 	_, err := i.evaluate(stmt.expression)
 	return err
 }
 
-func (i *Interpreter) interpret_print_stmt(stmt Print) error {
+func (i *Interpreter) interpretPrintStmt(stmt Print) error {
 	value, err := i.evaluate(stmt.expression)
 	if err != nil {
 		return err
@@ -502,7 +502,7 @@ func (i *Interpreter) interpret_print_stmt(stmt Print) error {
 	return nil
 }
 
-func (i *Interpreter) interpret_return_stmt(stmt Return) (*ReturnedValue, error) {
+func (i *Interpreter) interpretReturnStmt(stmt Return) (*ReturnedValue, error) {
 	var value any = nil
 	var err error
 	if stmt.value != nil {

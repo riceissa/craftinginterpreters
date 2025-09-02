@@ -102,16 +102,16 @@ func (r *Resolver) resolveSetExpr(expr *Set) {
 
 func (r *Resolver) resolveSuperExpr(expr *Super) {
 	if r.currentClass == CT_NONE {
-		log_parse_error(expr.keyword, "Can't use 'super' outside of a class.")
+		logParseError(expr.keyword, "Can't use 'super' outside of a class.")
 	} else if r.currentClass != CT_SUBCLASS {
-		log_parse_error(expr.keyword, "Can't use 'super' in a class with no superclass.")
+		logParseError(expr.keyword, "Can't use 'super' in a class with no superclass.")
 	}
 	r.resolveLocal(expr, expr.keyword)
 }
 
 func (r *Resolver) resolveThisExpr(expr *This) {
 	if r.currentClass == CT_NONE {
-		log_parse_error(expr.keyword, "Can't use 'this' outside of a class.")
+		logParseError(expr.keyword, "Can't use 'this' outside of a class.")
 		return
 	}
 	r.resolveLocal(expr, expr.keyword)
@@ -137,7 +137,7 @@ func (r *Resolver) resolveClassStmt(stmt Class) {
 	if stmt.superclass != nil && stmt.name.lexeme == stmt.superclass.name.lexeme {
 		// Why do we detect just a simple cycle like this? Why not more
 		// complicated cycles?
-		log_parse_error(stmt.superclass.name, "A class can't inherit from itself.")
+		logParseError(stmt.superclass.name, "A class can't inherit from itself.")
 	}
 
 	if stmt.superclass != nil {
@@ -194,7 +194,7 @@ func (r *Resolver) resolveVariableExpr(expr *Variable) {
 	if len(r.scopes) > 0 {
 		v, ok := r.scopes[len(r.scopes)-1][expr.name.lexeme]
 		if ok && !v {
-			log_parse_error(expr.name, "Can't read local variable in its own initializer.")
+			logParseError(expr.name, "Can't read local variable in its own initializer.")
 		}
 	}
 
@@ -216,7 +216,7 @@ func (r *Resolver) declare(name Token) {
 
 	scope := r.scopes[len(r.scopes)-1]
 	if _, ok := scope[name.lexeme]; ok {
-		log_parse_error(name, "Already a variable with this name in this scope")
+		logParseError(name, "Already a variable with this name in this scope")
 	}
 	scope[name.lexeme] = false
 }
@@ -269,12 +269,12 @@ func (r *Resolver) resolvePrintStmt(stmt Print) {
 
 func (r *Resolver) resolveReturnStmt(stmt Return) {
 	if r.currentFunction == FT_NONE {
-		log_parse_error(stmt.keyword, "Can't return from top-level code")
+		logParseError(stmt.keyword, "Can't return from top-level code")
 	}
 
 	if stmt.value != nil {
 		if r.currentFunction == FT_INITIALIZER {
-			log_parse_error(stmt.keyword, "Can't return a value from an initializer.")
+			logParseError(stmt.keyword, "Can't return a value from an initializer.")
 		}
 
 		r.resolveExpr(stmt.value)

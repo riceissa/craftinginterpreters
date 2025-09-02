@@ -5,12 +5,12 @@ import (
 )
 
 type Token struct {
-	token_type TokenType
+	tokenType TokenType
 	lexeme     string
 	literal    any
 	line       int
 }
 
 func (t Token) String() string {
-	return fmt.Sprintf("%v %v %v", t.token_type, t.lexeme, t.literal)
+	return fmt.Sprintf("%v %v %v", t.tokenType, t.lexeme, t.literal)
 }

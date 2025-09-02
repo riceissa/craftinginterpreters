@@ -235,7 +235,7 @@ func (p *Parser) function(kind string) (Function, error) {
 	if !p.check(RIGHT_PAREN) {
 		for {
 			if len(parameters) >= 255 {
-				log_parse_error(p.peek(), "Can't have more than 255 parameters.")
+				logParseError(p.peek(), "Can't have more than 255 parameters.")
 			}
 			ident, err := p.consume(IDENTIFIER, "Expect parameters name.")
 			if err != nil {
@@ -527,7 +527,7 @@ func (p *Parser) finishCall(callee Expr) (Expr, error) {
 	if !p.check(RIGHT_PAREN) {
 		for {
 			if len(arguments) >= 255 {
-				log_parse_error(p.peek(), "Can't have more than 255 arguments.")
+				logParseError(p.peek(), "Can't have more than 255 arguments.")
 			}
 			expr, err := p.expression()
 			if err != nil {
@@ -596,13 +596,13 @@ func (p *Parser) primary() (Expr, error) {
 		return &Grouping{expr}, nil
 	}
 
-	log_parse_error(p.peek(), "Expect expression.")
+	logParseError(p.peek(), "Expect expression.")
 	return nil, nil
 }
 
-func (p *Parser) match(token_types ...TokenType) bool {
-	for _, token_type := range token_types {
-		if p.check(token_type) {
+func (p *Parser) match(tokenTypes ...TokenType) bool {
+	for _, tokenType := range tokenTypes {
+		if p.check(tokenType) {
 			p.advance()
 			return true
 		}
@@ -610,17 +610,17 @@ func (p *Parser) match(token_types ...TokenType) bool {
 	return false
 }
 
-func (p *Parser) consume(token_type TokenType, message string) (Token, error) {
-	if p.check(token_type) {
+func (p *Parser) consume(tokenType TokenType, message string) (Token, error) {
+	if p.check(tokenType) {
 		return p.advance(), nil
 	}
-	log_parse_error(p.peek(), message)
+	logParseError(p.peek(), message)
 	err := errors.New("error inside of consume()")
 	return Token{}, err
 }
 
-func log_parse_error(token Token, message string) {
-	if token.token_type == EOF {
+func logParseError(token Token, message string) {
+	if token.tokenType == EOF {
 		report(token.line, " at end", message)
 	} else {
 		report(token.line, " at '"+token.lexeme+"'", message)
@@ -631,11 +631,11 @@ func (p *Parser) synchronize() {
 	p.advance()
 
 	for !p.isAtEnd() {
-		if p.previous().token_type == SEMICOLON {
+		if p.previous().tokenType == SEMICOLON {
 			return
 		}
 
-		switch p.peek().token_type {
+		switch p.peek().tokenType {
 		case CLASS:
 			return
 		case FUN:
@@ -658,11 +658,11 @@ func (p *Parser) synchronize() {
 	}
 }
 
-func (p *Parser) check(token_type TokenType) bool {
+func (p *Parser) check(tokenType TokenType) bool {
 	if p.isAtEnd() {
 		return false
 	}
-	return p.peek().token_type == token_type
+	return p.peek().tokenType == tokenType
 }
 
 func (p *Parser) advance() Token {
@@ -673,7 +673,7 @@ func (p *Parser) advance() Token {
 }
 
 func (p *Parser) isAtEnd() bool {
-	return p.peek().token_type == EOF
+	return p.peek().tokenType == EOF
 }
 
 func (p *Parser) peek() Token {

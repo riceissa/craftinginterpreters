@@ -59,13 +59,13 @@ func (s *Scanner) advance() byte {
 	return result
 }
 
-func (s *Scanner) addSimpleToken(token_type TokenType) {
-	s.addToken(token_type, nil)
+func (s *Scanner) addSimpleToken(tokenType TokenType) {
+	s.addToken(tokenType, nil)
 }
 
-func (s *Scanner) addToken(token_type TokenType, literal any) {
+func (s *Scanner) addToken(tokenType TokenType, literal any) {
 	text := s.source[s.start:s.current]
-	s.tokens = append(s.tokens, Token{token_type, text, literal, s.line})
+	s.tokens = append(s.tokens, Token{tokenType, text, literal, s.line})
 }
 
 func (s *Scanner) scanToken() {
@@ -133,19 +133,19 @@ func (s *Scanner) scanToken() {
 	case '\n':
 		s.line++
 	case '"':
-		s.scan_string()
+		s.scanString()
 	default:
 		if isDigit(c) {
-			s.scan_number()
+			s.scanNumber()
 		} else if isAlpha(c) {
-			s.scan_identifier()
+			s.scanIdentifier()
 		} else {
-			log_error(s.line, "Unexpected character.")
+			logError(s.line, "Unexpected character.")
 		}
 	}
 }
 
-func (s *Scanner) scan_number() {
+func (s *Scanner) scanNumber() {
 	for isDigit(s.peek()) {
 		s.advance()
 	}
@@ -165,7 +165,7 @@ func (s *Scanner) scan_number() {
 	s.addToken(NUMBER, f)
 }
 
-func (s *Scanner) scan_string() {
+func (s *Scanner) scanString() {
 	for s.peek() != '"' && !s.isAtEnd() {
 		if s.peek() == '\n' {
 			s.line++
@@ -174,7 +174,7 @@ func (s *Scanner) scan_string() {
 	}
 
 	if s.isAtEnd() {
-		log_error(s.line, "Unterminated string.")
+		logError(s.line, "Unterminated string.")
 		return
 	}
 
@@ -185,17 +185,17 @@ func (s *Scanner) scan_string() {
 	s.addToken(STRING, value)
 }
 
-func (s *Scanner) scan_identifier() {
+func (s *Scanner) scanIdentifier() {
 	for isAlphaNumeric(s.peek()) {
 		s.advance()
 	}
 
 	text := s.source[s.start:s.current]
-	token_type, ok := keywords[text]
+	tokenType, ok := keywords[text]
 	if !ok {
-		token_type = IDENTIFIER
+		tokenType = IDENTIFIER
 	}
-	s.addSimpleToken(token_type)
+	s.addSimpleToken(tokenType)
 }
 
 func (s *Scanner) match(expected byte) bool {

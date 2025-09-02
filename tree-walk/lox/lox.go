@@ -76,7 +76,7 @@ func run(source string) {
 	parser := Parser{tokens: tokens}
 	statements := parser.parse()
 
-	// fmt.Print(print_statements(statements, 0))
+	// fmt.Print(printStatements(statements, 0))
 
 	if hadError {
 		return
@@ -91,11 +91,11 @@ func run(source string) {
 	}
 
 	interpreter.interpret(statements)
-	// fmt.Println(print_expr(expression))
+	// fmt.Println(printExpr(expression))
 
 }
 
-func log_error(line int, message string) {
+func logError(line int, message string) {
 	report(line, "", message)
 }
 
