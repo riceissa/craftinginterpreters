@@ -41,7 +41,7 @@ func NewInterpreter() Interpreter {
 	return result
 }
 
-func (i *Interpreter) interpretFunctionStmt(stmt Function) error {
+func (i *Interpreter) interpretFunctionStmt(stmt *Function) error {
 	function := &LoxFunction{stmt, i.environment, false}
 	i.environment.define(stmt.name.lexeme, function)
 	return nil
@@ -109,23 +109,23 @@ func (i *Interpreter) interpretLogicalExpr(expr *Logical) (any, error) {
 
 func (i *Interpreter) execute(stmt Stmt) (*ReturnedValue, error) {
 	switch v := stmt.(type) {
-	case If:
+	case *If:
 		return i.interpretIfStmt(v)
-	case Print:
+	case *Print:
 		return nil, i.interpretPrintStmt(v)
-	case Expression:
+	case *Expression:
 		return nil, i.interpretExpressionStmt(v)
-	case Var:
+	case *Var:
 		return nil, i.interpretVarStmt(v)
-	case Block:
+	case *Block:
 		return i.interpretBlockStmt(v)
-	case While:
+	case *While:
 		return i.interpretWhileStmt(v)
-	case Function:
+	case *Function:
 		return nil, i.interpretFunctionStmt(v)
-	case Return:
+	case *Return:
 		return i.interpretReturnStmt(v) // This one actually returns a value
-	case Class:
+	case *Class:
 		return nil, i.interpretClassStmt(v)
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))
@@ -136,7 +136,7 @@ func (r *Resolver) resolve(expr Expr, depth int) {
 	r.interpreter.locals[expr] = depth
 }
 
-func (i *Interpreter) interpretWhileStmt(stmt While) (*ReturnedValue, error) {
+func (i *Interpreter) interpretWhileStmt(stmt *While) (*ReturnedValue, error) {
 	for {
 		cond, err := i.evaluate(stmt.condition)
 		if err != nil {
@@ -157,14 +157,14 @@ func (i *Interpreter) interpretWhileStmt(stmt While) (*ReturnedValue, error) {
 	return nil, nil
 }
 
-func (i *Interpreter) interpretBlockStmt(stmt Block) (*ReturnedValue, error) {
+func (i *Interpreter) interpretBlockStmt(stmt *Block) (*ReturnedValue, error) {
 	innerEnv := NewEnvironment()
 	innerEnv.enclosing = i.environment
 	res, err := i.executeBlock(stmt.statements, innerEnv)
 	return res, err
 }
 
-func (i *Interpreter) interpretClassStmt(stmt Class) error {
+func (i *Interpreter) interpretClassStmt(stmt *Class) error {
 	var superclass *LoxClass = nil
 	if stmt.superclass != nil {
 		sc, err := i.evaluate(stmt.superclass)
@@ -206,7 +206,7 @@ func (i *Interpreter) interpretClassStmt(stmt Class) error {
 	return nil
 }
 
-func (i *Interpreter) interpretIfStmt(stmt If) (*ReturnedValue, error) {
+func (i *Interpreter) interpretIfStmt(stmt *If) (*ReturnedValue, error) {
 	cond, err := i.evaluate(stmt.condition)
 	if err != nil {
 		return nil, err
@@ -251,7 +251,7 @@ func (i *Interpreter) executeBlock(statements []Stmt, environment *Environment) 
 	return nil, nil
 }
 
-func (i *Interpreter) interpretVarStmt(stmt Var) error {
+func (i *Interpreter) interpretVarStmt(stmt *Var) error {
 	var value any
 	var err error
 	if stmt.initializer != nil {
@@ -494,12 +494,12 @@ func (i *Interpreter) interpretUnaryExpr(expr *Unary) (any, error) {
 	panic("Unreachable")
 }
 
-func (i *Interpreter) interpretExpressionStmt(stmt Expression) error {
+func (i *Interpreter) interpretExpressionStmt(stmt *Expression) error {
 	_, err := i.evaluate(stmt.expression)
 	return err
 }
 
-func (i *Interpreter) interpretPrintStmt(stmt Print) error {
+func (i *Interpreter) interpretPrintStmt(stmt *Print) error {
 	value, err := i.evaluate(stmt.expression)
 	if err != nil {
 		return err
@@ -508,7 +508,7 @@ func (i *Interpreter) interpretPrintStmt(stmt Print) error {
 	return nil
 }
 
-func (i *Interpreter) interpretReturnStmt(stmt Return) (*ReturnedValue, error) {
+func (i *Interpreter) interpretReturnStmt(stmt *Return) (*ReturnedValue, error) {
 	var value any = nil
 	var err error
 	if stmt.value != nil {

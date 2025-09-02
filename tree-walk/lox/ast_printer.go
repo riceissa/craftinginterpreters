@@ -25,21 +25,21 @@ func printIndent(indent int) string {
 
 func printStmt(stmt Stmt, indent int) string {
 	switch v := stmt.(type) {
-	case If:
+	case *If:
 		return printIndent(indent) + "<if>"
-	case Print:
+	case *Print:
 		return printIndent(indent) + "<print>"
-	case Expression:
+	case *Expression:
 		return fmt.Sprintf("%v<expr: %v>", printIndent(indent), printExpr(v.expression))
-	case Var:
+	case *Var:
 		return fmt.Sprintf("%v<var: %v = %v>\n", printIndent(indent), v.name, printExpr(v.initializer))
-	case Block:
+	case *Block:
 		return fmt.Sprintf("%v<block: \n%v\n%v>\n", printIndent(indent), printStatements(v.statements, indent+4), printIndent(indent))
-	case While:
+	case *While:
 		return fmt.Sprintf("%v<while: (%v)\n%v\n%v>\n", printIndent(indent), printExpr(v.condition), printStmt(v.body, indent+4), printIndent(indent))
-	case Function:
+	case *Function:
 		return printIndent(indent) + "<function>"
-	case Return:
+	case *Return:
 		return printIndent(indent) + "<return>"
 	default:
 		panic(fmt.Sprintf("Unreachable. stmt has value %v; its type is %T which we don't know how to handle.", stmt, stmt))

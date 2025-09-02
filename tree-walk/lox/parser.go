@@ -43,7 +43,7 @@ func (p *Parser) statement() (Stmt, error) {
 		if err != nil {
 			return nil, err
 		}
-		return Block{b}, nil
+		return &Block{b}, nil
 	}
 	return p.expressionStatement()
 }
@@ -63,7 +63,7 @@ func (p *Parser) returnStatement() (Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
-	return Return{keyword, value}, nil
+	return &Return{keyword, value}, nil
 }
 
 func (p *Parser) forStatement() (Stmt, error) {
@@ -117,18 +117,18 @@ func (p *Parser) forStatement() (Stmt, error) {
 	}
 
 	if increment != nil {
-		body = Block{
-			[]Stmt{body, Expression{increment}},
+		body = &Block{
+			[]Stmt{body, &Expression{increment}},
 		}
 	}
 
 	if condition == nil {
 		condition = &Literal{true}
 	}
-	body = While{condition, body}
+	body = &While{condition, body}
 
 	if initializer != nil {
-		body = Block{
+		body = &Block{
 			[]Stmt{initializer, body},
 		}
 	}
@@ -154,30 +154,30 @@ func (p *Parser) whileStatement() (Stmt, error) {
 		return nil, err
 	}
 
-	return While{condition, body}, nil
+	return &While{condition, body}, nil
 }
 
-func (p *Parser) ifStatement() (If, error) {
+func (p *Parser) ifStatement() (*If, error) {
 	p.consume(LEFT_PAREN, "Expect '(' after 'if'.")
 	condition, err := p.expression()
 	if err != nil {
-		return If{}, err
+		return &If{}, err
 	}
 	p.consume(RIGHT_PAREN, "Expect ')' after if condition.")
 
 	thenBranch, err := p.statement()
 	if err != nil {
-		return If{}, err
+		return &If{}, err
 	}
 	var elseBranch Stmt = nil
 	if p.match(ELSE) {
 		elseBranch, err = p.statement()
 		if err != nil {
-			return If{}, err
+			return &If{}, err
 		}
 	}
 
-	return If{condition, thenBranch, elseBranch}, nil
+	return &If{condition, thenBranch, elseBranch}, nil
 }
 
 func (p *Parser) block() ([]Stmt, error) {
@@ -207,7 +207,7 @@ func (p *Parser) printStatement() (Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
-	return Print{value}, nil
+	return &Print{value}, nil
 }
 
 func (p *Parser) expressionStatement() (Stmt, error) {
@@ -219,17 +219,17 @@ func (p *Parser) expressionStatement() (Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
-	return Expression{expr}, nil
+	return &Expression{expr}, nil
 }
 
-func (p *Parser) function(kind string) (Function, error) {
+func (p *Parser) function(kind string) (*Function, error) {
 	name, err := p.consume(IDENTIFIER, fmt.Sprintf("Expect %v name.", kind))
 	if err != nil {
-		return Function{}, err
+		return &Function{}, err
 	}
 	_, err = p.consume(LEFT_PAREN, fmt.Sprintf("Expect '(' after %v name.", kind))
 	if err != nil {
-		return Function{}, err
+		return &Function{}, err
 	}
 	parameters := []Token{}
 	if !p.check(RIGHT_PAREN) {
@@ -239,7 +239,7 @@ func (p *Parser) function(kind string) (Function, error) {
 			}
 			ident, err := p.consume(IDENTIFIER, "Expect parameters name.")
 			if err != nil {
-				return Function{}, err
+				return &Function{}, err
 			}
 			parameters = append(parameters, ident)
 			if !p.match(COMMA) {
@@ -252,9 +252,9 @@ func (p *Parser) function(kind string) (Function, error) {
 	p.consume(LEFT_BRACE, fmt.Sprintf("Expect '{' before %v body.", kind))
 	body, err := p.block()
 	if err != nil {
-		return Function{}, err
+		return &Function{}, err
 	}
-	return Function{name, parameters, body}, nil
+	return &Function{name, parameters, body}, nil
 }
 
 func (p *Parser) or() (Expr, error) {
@@ -373,7 +373,7 @@ func (p *Parser) classDeclaration() (Stmt, error) {
 		return nil, err
 	}
 
-	methods := []Function{}
+	methods := []*Function{}
 	for !p.check(RIGHT_BRACE) && !p.isAtEnd() {
 		f, err := p.function("method")
 		if err != nil {
@@ -387,7 +387,7 @@ func (p *Parser) classDeclaration() (Stmt, error) {
 		return nil, err
 	}
 
-	return Class{name, superclass, methods}, nil
+	return &Class{name, superclass, methods}, nil
 }
 
 func (p *Parser) varDeclaration() (Stmt, error) {
@@ -408,7 +408,7 @@ func (p *Parser) varDeclaration() (Stmt, error) {
 	if err != nil {
 		return nil, err
 	}
-	return Var{name, initializer}, nil
+	return &Var{name, initializer}, nil
 }
 
 func (p *Parser) equality() (Expr, error) {

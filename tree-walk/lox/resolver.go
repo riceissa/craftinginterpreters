@@ -41,23 +41,23 @@ func (r *Resolver) resolveStatements(statements []Stmt) {
 
 func (r *Resolver) resolveStmt(stmt Stmt) {
 	switch v := stmt.(type) {
-	case Class:
+	case *Class:
 		r.resolveClassStmt(v)
-	case Block:
+	case *Block:
 		r.resolveBlockStmt(v)
-	case Function:
+	case *Function:
 		r.resolveFunctionStmt(v)
-	case Var:
+	case *Var:
 		r.resolveVarStmt(v)
-	case Expression:
+	case *Expression:
 		r.resolveExpressionStmt(v)
-	case If:
+	case *If:
 		r.resolveIfStmt(v)
-	case Print:
+	case *Print:
 		r.resolvePrintStmt(v)
-	case Return:
+	case *Return:
 		r.resolveReturnStmt(v)
-	case While:
+	case *While:
 		r.resolveWhileStmt(v)
 	default:
 		panic("Unreachable.")
@@ -121,13 +121,13 @@ func (r *Resolver) resolveGetExpr(expr *Get) {
 	r.resolveExpr(expr.object)
 }
 
-func (r *Resolver) resolveBlockStmt(stmt Block) {
+func (r *Resolver) resolveBlockStmt(stmt *Block) {
 	r.beginScope()
 	r.resolveStatements(stmt.statements)
 	r.endScope()
 }
 
-func (r *Resolver) resolveClassStmt(stmt Class) {
+func (r *Resolver) resolveClassStmt(stmt *Class) {
 	enclosingClass := r.currentClass
 	r.currentClass = CT_CLASS
 
@@ -170,14 +170,14 @@ func (r *Resolver) resolveClassStmt(stmt Class) {
 	r.currentClass = enclosingClass
 }
 
-func (r *Resolver) resolveFunctionStmt(stmt Function) {
+func (r *Resolver) resolveFunctionStmt(stmt *Function) {
 	r.declare(stmt.name)
 	r.define(stmt.name)
 
 	r.resolveFunction(stmt, FT_FUNCTION)
 }
 
-func (r *Resolver) resolveVarStmt(stmt Var) {
+func (r *Resolver) resolveVarStmt(stmt *Var) {
 	r.declare(stmt.name)
 	if stmt.initializer != nil {
 		r.resolveExpr(stmt.initializer)
@@ -237,7 +237,7 @@ func (r *Resolver) resolveLocal(expr Expr, name Token) {
 	}
 }
 
-func (r *Resolver) resolveFunction(function Function, ft FunctionType) {
+func (r *Resolver) resolveFunction(function *Function, ft FunctionType) {
 	enclosingFunction := r.currentFunction
 	r.currentFunction = ft
 
@@ -251,11 +251,11 @@ func (r *Resolver) resolveFunction(function Function, ft FunctionType) {
 	r.currentFunction = enclosingFunction
 }
 
-func (r *Resolver) resolveExpressionStmt(stmt Expression) {
+func (r *Resolver) resolveExpressionStmt(stmt *Expression) {
 	r.resolveExpr(stmt.expression)
 }
 
-func (r *Resolver) resolveIfStmt(stmt If) {
+func (r *Resolver) resolveIfStmt(stmt *If) {
 	r.resolveExpr(stmt.condition)
 	r.resolveStmt(stmt.thenBranch)
 	if stmt.elseBranch != nil {
@@ -263,11 +263,11 @@ func (r *Resolver) resolveIfStmt(stmt If) {
 	}
 }
 
-func (r *Resolver) resolvePrintStmt(stmt Print) {
+func (r *Resolver) resolvePrintStmt(stmt *Print) {
 	r.resolveExpr(stmt.expression)
 }
 
-func (r *Resolver) resolveReturnStmt(stmt Return) {
+func (r *Resolver) resolveReturnStmt(stmt *Return) {
 	if r.currentFunction == FT_NONE {
 		logParseError(stmt.keyword, "Can't return from top-level code")
 	}
@@ -281,7 +281,7 @@ func (r *Resolver) resolveReturnStmt(stmt Return) {
 	}
 }
 
-func (r *Resolver) resolveWhileStmt(stmt While) {
+func (r *Resolver) resolveWhileStmt(stmt *While) {
 	r.resolveExpr(stmt.condition)
 	r.resolveStmt(stmt.body)
 }

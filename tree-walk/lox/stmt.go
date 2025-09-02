@@ -11,7 +11,7 @@ type Block struct {
 type Class struct {
 	name       Token
 	superclass *Variable
-	methods    []Function
+	methods    []*Function
 }
 
 type Expression struct {
@@ -49,23 +49,23 @@ type While struct {
 	body      Stmt
 }
 
-func (b Block) sealStmt()      {}
-func (c Class) sealStmt()      {}
-func (e Expression) sealStmt() {}
-func (f Function) sealStmt()   {}
-func (i If) sealStmt()         {}
-func (p Print) sealStmt()      {}
-func (r Return) sealStmt()     {}
-func (v Var) sealStmt()        {}
-func (w While) sealStmt()      {}
+func (b *Block) sealStmt()      {}
+func (c *Class) sealStmt()      {}
+func (e *Expression) sealStmt() {}
+func (f *Function) sealStmt()   {}
+func (i *If) sealStmt()         {}
+func (p *Print) sealStmt()      {}
+func (r *Return) sealStmt()     {}
+func (v *Var) sealStmt()        {}
+func (w *While) sealStmt()      {}
 
 // Assert that we've implemented the interface
-var _ Stmt = Block{}
-var _ Stmt = Class{}
-var _ Stmt = Expression{}
-var _ Stmt = Function{}
-var _ Stmt = If{}
-var _ Stmt = Print{}
-var _ Stmt = Return{}
-var _ Stmt = Var{}
-var _ Stmt = While{}
+var _ Stmt = &Block{}
+var _ Stmt = &Class{}
+var _ Stmt = &Expression{}
+var _ Stmt = &Function{}
+var _ Stmt = &If{}
+var _ Stmt = &Print{}
+var _ Stmt = &Return{}
+var _ Stmt = &Var{}
+var _ Stmt = &While{}

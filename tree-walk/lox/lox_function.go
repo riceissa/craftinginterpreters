@@ -5,7 +5,7 @@ import (
 )
 
 type LoxFunction struct {
-	declaration   Function
+	declaration   *Function
 	closure       *Environment
 	isInitializer bool
 }
