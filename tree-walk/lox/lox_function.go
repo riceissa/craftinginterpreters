@@ -21,11 +21,11 @@ func (f *LoxFunction) String() string {
 func (f *LoxFunction) Call(interpreter *Interpreter, arguments []any) (any, error) {
 	environment := NewEnvironment()
 	environment.enclosing = f.closure
-	for i := range len(f.declaration.params) {
+	for i := range f.declaration.params {
 		environment.define(f.declaration.params[i].lexeme, arguments[i])
 	}
 
-	result, err := interpreter.executeBlock(f.declaration.body, &environment)
+	result, err := interpreter.executeBlock(f.declaration.body, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (l *LoxFunction) bind(instance *LoxInstance) *LoxFunction {
 	environment := NewEnvironment()
 	environment.enclosing = l.closure
 	environment.define("this", instance)
-	return &LoxFunction{l.declaration, &environment, l.isInitializer}
+	return &LoxFunction{l.declaration, environment, l.isInitializer}
 }
 
 type LoxNativeFunction struct {

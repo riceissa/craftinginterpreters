@@ -9,8 +9,8 @@ type Environment struct {
 	values    map[string]any
 }
 
-func NewEnvironment() Environment {
-	return Environment{
+func NewEnvironment() *Environment {
+	return &Environment{
 		enclosing: nil,
 		values:    make(map[string]any),
 	}

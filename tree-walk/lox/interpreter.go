@@ -25,8 +25,8 @@ var interpreter Interpreter = NewInterpreter()
 func NewInterpreter() Interpreter {
 	var environment = NewEnvironment()
 	result := Interpreter{
-		globals:     &environment,
-		environment: &environment,
+		globals:     environment,
+		environment: environment,
 		locals:      make(map[Expr]int),
 	}
 
@@ -160,7 +160,7 @@ func (i *Interpreter) interpret_while_stmt(stmt While) (*ReturnedValue, error) {
 func (i *Interpreter) interpret_block_stmt(stmt Block) (*ReturnedValue, error) {
 	innerEnv := NewEnvironment()
 	innerEnv.enclosing = i.environment
-	res, err := i.executeBlock(stmt.statements, &innerEnv)
+	res, err := i.executeBlock(stmt.statements, innerEnv)
 	return res, err
 }
 
@@ -183,7 +183,7 @@ func (i *Interpreter) interpret_class_stmt(stmt Class) error {
 	if stmt.superclass != nil {
 		environment := NewEnvironment()
 		environment.enclosing = i.environment
-		i.environment = &environment
+		i.environment = environment
 		i.environment.define("super", superclass)
 	}
 
