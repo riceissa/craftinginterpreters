@@ -32,8 +32,8 @@ var keywords = map[string]TokenType{
 	"while":  WHILE,
 }
 
-func NewScanner(source string) Scanner {
-	scanner := Scanner{}
+func NewScanner(source string) *Scanner {
+	scanner := &Scanner{}
 	scanner.source = source
 	scanner.line = 1
 	return scanner

@@ -398,8 +398,14 @@ func (i *Interpreter) interpretGetExpr(expr *Get) (any, error) {
 }
 
 func (i *Interpreter) interpretBinaryExpr(expr *Binary) (any, error) {
-	left, _ := i.evaluate(expr.left)
-	right, _ := i.evaluate(expr.right)
+	left, err := i.evaluate(expr.left)
+	if err != nil {
+		return nil, err
+	}
+	right, err := i.evaluate(expr.right)
+	if err != nil {
+		return nil, err
+	}
 
 	leftRV, leftIsRV := left.(*ReturnedValue)
 	if leftIsRV {
