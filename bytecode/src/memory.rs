@@ -1,8 +1,12 @@
-use std::{mem, ptr, process};
-use std::alloc::{realloc, dealloc, Layout};
+use std::alloc::{dealloc, realloc, Layout};
+use std::{mem, process, ptr};
 
 pub fn grow_capacity(capacity: isize) -> isize {
-    if capacity < 8 { 8 } else { capacity * 2 }
+    if capacity < 8 {
+        8
+    } else {
+        capacity * 2
+    }
 }
 
 pub fn grow_array<T>(pointer: *mut T, old_count: isize, new_count: isize) -> *mut T {

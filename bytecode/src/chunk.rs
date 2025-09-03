@@ -1,6 +1,6 @@
 use std::ptr;
 
-use crate::memory::{grow_capacity, grow_array, free_array};
+use crate::memory::{free_array, grow_array, grow_capacity};
 
 #[repr(u8)]
 pub enum OpCode {

@@ -1,4 +1,4 @@
-use crate::chunk::{Chunk};
+use crate::chunk::Chunk;
 
 pub fn disassemble_chunk(chunk: &mut Chunk, name: &str) {
     println!("== {} ==", name);
