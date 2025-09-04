@@ -45,7 +45,7 @@ impl<T> DynamicArray<T> {
 }
 
 pub struct Chunk {
-    pub chunk: DynamicArray<u8>,
+    pub code: DynamicArray<u8>,
     pub lines: DynamicArray<i32>,
     pub constants: ValueArray,
 }
@@ -53,7 +53,7 @@ pub struct Chunk {
 impl Chunk {
     pub fn new() -> Self {
         Chunk {
-            chunk: DynamicArray::<u8>::new(),
+            code: DynamicArray::<u8>::new(),
             lines: DynamicArray::<i32>::new(),
             constants: ValueArray::new(),
         }
@@ -65,7 +65,7 @@ impl Chunk {
     }
 
     pub fn write(&mut self, byte: u8, line: i32) {
-        self.chunk.write(byte);
+        self.code.write(byte);
         self.lines.write(line);
     }
 }

@@ -5,7 +5,7 @@ pub fn disassemble_chunk(chunk: &mut Chunk, name: &str) {
     println!("== {} ==", name);
 
     let mut offset: i32 = 0;
-    while (offset as isize) < chunk.chunk.count {
+    while (offset as isize) < chunk.code.count {
         offset = disassemble_instruction(chunk, offset as i32);
     }
 }
@@ -18,7 +18,7 @@ fn disassemble_instruction(chunk: &mut Chunk, offset: i32) -> i32 {
         } else {
             print!("{:4} ", *chunk.lines.values.add(offset as usize))
         }
-        let instruction: u8 = *chunk.chunk.values.add(offset as usize);
+        let instruction: u8 = *chunk.code.values.add(offset as usize);
         match instruction {
             x if x == OpCode::Constant as u8 => constant_instruction("OP_CONSTANT", chunk, offset),
             x if x == OpCode::Return as u8 => simple_instruction("OP_RETURN", offset),
@@ -32,7 +32,7 @@ fn disassemble_instruction(chunk: &mut Chunk, offset: i32) -> i32 {
 
 fn constant_instruction(name: &str, chunk: &Chunk, offset: i32) -> i32 {
     unsafe {
-        let constant: u8 = *chunk.chunk.values.add((offset + 1) as usize);
+        let constant: u8 = *chunk.code.values.add((offset + 1) as usize);
         print!("{:16} {:4} '", name, constant);
         print_value(&*chunk.constants.values.add(constant as usize));
     }
