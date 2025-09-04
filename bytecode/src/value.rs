@@ -7,5 +7,5 @@ pub struct Value(pub f64);
 pub type ValueArray = DynamicArray<Value>;
 
 pub fn print_value(value: &Value) {
-    print!("{:?}", value);
+    print!("{:?}", value.0);
 }
