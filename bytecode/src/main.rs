@@ -5,7 +5,7 @@ mod value;
 
 use crate::chunk::{Chunk, OpCode};
 use crate::debug::disassemble_chunk;
-use crate::value::{Value};
+use crate::value::Value;
 
 fn main() {
     let mut chunk: Chunk = Chunk::new();

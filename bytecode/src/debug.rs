@@ -13,7 +13,10 @@ pub fn disassemble_chunk(chunk: &mut Chunk, name: &str) {
 fn disassemble_instruction(chunk: &mut Chunk, offset: i32) -> i32 {
     print!("{:04} ", offset);
     unsafe {
-        if offset > 0 && *chunk.lines.values.add(offset as usize) == *chunk.lines.values.add((offset - 1) as usize) {
+        if offset > 0
+            && *chunk.lines.values.add(offset as usize)
+                == *chunk.lines.values.add((offset - 1) as usize)
+        {
             print!("   | ");
         } else {
             print!("{:4} ", *chunk.lines.values.add(offset as usize))

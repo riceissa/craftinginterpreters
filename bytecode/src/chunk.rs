@@ -23,7 +23,7 @@ impl<T> Drop for DynamicArray<T> {
 
 impl<T> DynamicArray<T> {
     pub fn new() -> Self {
-        DynamicArray::<T>{
+        DynamicArray::<T> {
             count: 0,
             capacity: 0,
             values: ptr::null::<T>() as *mut T,
