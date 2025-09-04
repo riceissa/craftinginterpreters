@@ -1,10 +1,12 @@
 use std::ptr;
 
 use crate::memory::{free_array, grow_array, grow_capacity};
+use crate::value::{Value, ValueArray};
 
 #[repr(u8)]
 pub enum OpCode {
-    OpReturn = 0,
+    Constant = 0,
+    Return,
 }
 
 pub struct DynamicArray<T> {
@@ -39,4 +41,32 @@ impl<T> DynamicArray<T> {
     }
 }
 
-pub type Chunk = DynamicArray<u8>;
+pub struct Chunk {
+    pub chunk: DynamicArray<u8>,
+    pub lines: DynamicArray<i32>,
+    pub constants: ValueArray,
+}
+
+impl Chunk {
+    pub fn init(chunk: &mut Chunk) {
+        DynamicArray::<u8>::init(&mut chunk.chunk);
+        DynamicArray::<i32>::init(&mut chunk.lines);
+        ValueArray::init(&mut chunk.constants);
+    }
+
+    pub fn free(chunk: &mut Chunk) {
+        DynamicArray::<u8>::free(&mut chunk.chunk);
+        DynamicArray::<i32>::free(&mut chunk.lines);
+        ValueArray::free(&mut chunk.constants);
+    }
+
+    pub fn add_constant(chunk: &mut Chunk, value: Value) -> isize {
+        ValueArray::write(&mut chunk.constants, value);
+        return chunk.constants.count - 1;
+    }
+
+    pub fn write(chunk: &mut Chunk, byte: u8, line: i32) {
+        DynamicArray::<u8>::write(&mut chunk.chunk, byte);
+        DynamicArray::<i32>::write(&mut chunk.lines, line);
+    }
+}
