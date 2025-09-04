@@ -7,32 +7,36 @@ pub enum OpCode {
     OpReturn = 0,
 }
 
-pub struct Chunk {
+pub struct DynamicArray<T> {
     pub count: isize,
     pub capacity: isize,
-    pub code: *mut u8,
+    pub values: *mut T,
 }
 
-pub fn init_chunk(chunk: &mut Chunk) {
-    chunk.count = 0;
-    chunk.capacity = 0;
-    chunk.code = ptr::null::<u8>() as *mut u8;
-}
-
-pub fn free_chunk(chunk: &mut Chunk) {
-    free_array::<u8>(chunk.code, chunk.capacity);
-    init_chunk(chunk);
-}
-
-pub fn write_chunk(chunk: &mut Chunk, byte: u8) {
-    if chunk.capacity < chunk.count + 1 {
-        let old_capacity = chunk.capacity;
-        chunk.capacity = grow_capacity(old_capacity);
-        chunk.code = grow_array::<u8>(chunk.code, old_capacity, chunk.capacity);
+impl<T> DynamicArray<T> {
+    pub fn init(array: &mut DynamicArray<T>) {
+        array.count = 0;
+        array.capacity = 0;
+        array.values = ptr::null::<T>() as *mut T;
     }
 
-    unsafe {
-        *chunk.code.add(chunk.count as usize) = byte;
+    pub fn free(array: &mut DynamicArray<T>) {
+        free_array::<T>(array.values, array.capacity);
+        Self::init(array);
     }
-    chunk.count += 1;
+
+    pub fn write(array: &mut DynamicArray<T>, value: T) {
+        if array.capacity < array.count + 1 {
+            let old_capacity = array.capacity;
+            array.capacity = grow_capacity(old_capacity);
+            array.values = grow_array::<T>(array.values, old_capacity, array.capacity);
+        }
+
+        unsafe {
+            *array.values.add(array.count as usize) = value;
+        }
+        array.count += 1;
+    }
 }
+
+pub type Chunk = DynamicArray<u8>;

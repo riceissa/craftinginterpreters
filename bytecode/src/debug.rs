@@ -12,7 +12,7 @@ pub fn disassemble_chunk(chunk: &mut Chunk, name: &str) {
 fn disassemble_instruction(chunk: &mut Chunk, offset: i32) -> i32 {
     print!("{:04} ", offset);
     unsafe {
-        let instruction: u8 = *chunk.code.add(offset as usize);
+        let instruction: u8 = *chunk.values.add(offset as usize);
         match instruction {
             _ => simple_instruction("OP_RETURN", offset),
             // _ => {
