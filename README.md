@@ -24,11 +24,11 @@ what the book uses, for this part) to Go. The biggest differences are:
 
 Everything from Part II of the book has been implemented. (It's possible
 that I didn't implement everything _correctly_, however, so there may
-be some differences, especially in the error-handling, from the reference
-implementation of the book.)
+be some differences from the reference implementation of the book,
+especially in the error-handling.)
 
 ## Bytecode virtual machine
 
 The bytecode virtual machine lives in the `bytecode/` directory of the repo.
 
-Work on the bytecode virtual machine has not begun yet.
+Everything up to and including Chapter 14 is done.
