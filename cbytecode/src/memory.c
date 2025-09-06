@@ -4,7 +4,7 @@
 
 void *reallocate(void *pointer, size_t old_size, size_t new_size)
 {
-    (void)old_size;
+    (void)old_size;  // TODO: why is old_size not used in this function?
 
     if (new_size == 0)
     {
