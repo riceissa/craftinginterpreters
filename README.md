@@ -30,12 +30,21 @@ especially in the error-handling.)
 ## Bytecode virtual machine
 
 There are two versions of the bytecode virtual machine.
-One is the C version from the book, which I am copying as I read along. This
+
+* One is the C version from the book, which I am copying as I read along. This
 version lives in the `cbytecode/` directory of the repo.
-The other version is written in Rust, and lives in the `bytecode/` directory of
+
+* The other version is written in Rust, and lives in the `bytecode/` directory of
 the repo.
 The Rust version is cheating a little, by using standard data structures
-available in the language such as the `Vec` type for dynamic arrays. This means
+available in the language such as the `Vec` type for dynamic arrays.
+(I originally intended to implement my own version of `Vec` and other
+data structures, but it clearly became apparent that this was going to be
+way too much work because the compiler really doesn't want you to do "unsafe"
+things, and I was getting very tricky errors and couldn't even compile
+my code. This is my first time using Rust, so I am hopeful I can come back
+and maybe add in my own implementations later on.)
+This means
 that I don't really do any memory management, instead relying on Rust's RAII
 for memory management. (To be clear, I am skeptical of RAII, but I am trying my
 best to go along with the language's idioms since this is my first time using
