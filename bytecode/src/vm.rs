@@ -8,10 +8,12 @@ const DEBUG_TRACE_EXECUTION: bool = true;
 
 pub struct VM {
     pub chunk: Chunk,
-    pub ip: usize, // Unlike the book, we'll store the instruction pointer
-    // relatively, as an offset, mostly because I don't know
-    // how to do it as an actual pointer in Rust and get it to
-    // actually compile.
+
+    // Unlike the book, we'll store the instruction pointer relatively, as an
+    // offset, mostly because I don't know how to do it as an actual pointer in
+    // Rust and get it to actually compile.
+    pub ip: usize,
+
     pub stack: Vec<Value>,
 }
 
