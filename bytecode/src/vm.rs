@@ -2,19 +2,14 @@ use crate::chunk::{Chunk, OpCode};
 use crate::value::{Value, print_value};
 
 pub struct VM {
-    chunk: Chunk,
-    ip: *mut u8,
+    pub chunk: Chunk,
+    pub ip: usize,  // Unlike the book, we'll store the instruction pointer relatively, as an offset
 }
 
-enum InterpretResult {
+pub enum InterpretResult {
     Ok,
-    CompileError,
+    // CompileError,
     RuntimeError,
-}
-
-impl Drop for VM {
-    fn drop(&mut self) {
-    }
 }
 
 impl VM {
@@ -23,21 +18,20 @@ impl VM {
 
     pub fn interpret(&mut self, chunk: Chunk) -> InterpretResult {
         self.chunk = chunk;
-        self.ip = self.chunk.code.values;
+        self.ip = 0;
         unsafe {
             return self.run();
         }
     }
 
-    unsafe fn run(&self) -> InterpretResult {
+    unsafe fn run(&mut self) -> InterpretResult {
         loop {
-            let instruction: u8 = *self.ip;
-            *self.ip += 1;
+            let instruction: u8 = self.ip as u8;
+            self.ip += 1;
             match instruction {
                 x if x == OpCode::Constant as u8 => {
-                    let index = *self.ip as usize;
-                    let constant: Value = *self.chunk.constants.values.add(index);
-                    *self.ip += 1;
+                    let constant: &Value = &self.chunk.constants[self.ip];
+                    self.ip += 1;
                     print_value(&constant);
                     println!("");
                     // break;

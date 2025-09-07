@@ -1,6 +1,6 @@
 mod chunk;
 mod debug;
-mod memory;
+// mod memory;
 mod value;
 mod vm;
 
@@ -10,7 +10,7 @@ use crate::value::Value;
 use crate::vm::{VM};
 
 fn main() {
-    let vm: VM = VM{chunk: Chunk::new(), ip: 0 as *mut u8};
+    let mut vm: VM = VM{chunk: Chunk::new(), ip: 0};
     VM::init();
 
     let mut chunk: Chunk = Chunk::new();

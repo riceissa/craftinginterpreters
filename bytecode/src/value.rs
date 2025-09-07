@@ -1,10 +1,14 @@
-use crate::chunk::DynamicArray;
-
 #[derive(Debug)]
 #[allow(dead_code)]
 pub struct Value(pub f64);
 
-pub type ValueArray = DynamicArray<Value>;
+// impl Clone for Value {
+//     fn clone(&self) -> Self {
+//         Value(self.0)
+//     }
+// }
+
+pub type ValueArray = Vec<Value>;
 
 pub fn print_value(value: &Value) {
     print!("{:?}", value.0);
