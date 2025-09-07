@@ -29,6 +29,16 @@ especially in the error-handling.)
 
 ## Bytecode virtual machine
 
-The bytecode virtual machine lives in the `bytecode/` directory of the repo.
+There are two versions of the bytecode virtual machine.
+One is the C version from the book, which I am copying as I read along. This
+version lives in the `cbytecode/` directory of the repo.
+The other version is written in Rust, and lives in the `bytecode/` directory of
+the repo.
+The Rust version is cheating a little, by using standard data structures
+available in the language such as the `Vec` type for dynamic arrays. This means
+that I don't really do any memory management, instead relying on Rust's RAII
+for memory management. (To be clear, I am skeptical of RAII, but I am trying my
+best to go along with the language's idioms since this is my first time using
+Rust.)
 
-Everything up to and including Chapter 14 is done.
+Everything up to and including Chapter 15 is done.
