@@ -1,6 +1,5 @@
 mod chunk;
 mod debug;
-// mod memory;
 mod value;
 mod vm;
 
