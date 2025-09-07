@@ -22,6 +22,10 @@ pub fn disassemble_instruction(chunk: &mut Chunk, offset: i32) -> i32 {
     let instruction: u8 = chunk.code[offset as usize];
     match instruction.try_into() {
         Ok(OpCode::Constant) => constant_instruction("OP_CONSTANT", chunk, offset),
+        Ok(OpCode::Add) => simple_instruction("OP_ADD", offset),
+        Ok(OpCode::Subtract) => simple_instruction("OP_SUBTRACT", offset),
+        Ok(OpCode::Multiply) => simple_instruction("OP_MULTIPLY", offset),
+        Ok(OpCode::Divide) => simple_instruction("OP_DIVIDE", offset),
         Ok(OpCode::Negate) => simple_instruction("OP_NEGATE", offset),
         Ok(OpCode::Return) => simple_instruction("OP_RETURN", offset),
         Err(err) => {

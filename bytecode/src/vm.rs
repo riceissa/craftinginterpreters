@@ -43,6 +43,18 @@ impl VM {
     }
 
     fn run(&mut self) -> InterpretResult {
+
+
+        macro_rules! binary_op {
+            ($op:tt) => {
+                {
+                    let b = self.stack.pop().expect("Stack underflow: failed to pop 'b'");
+                    let a = self.stack.pop().expect("Stack underflow: failed to pop 'a'");
+                    self.stack.push(a $op b);
+                }
+            };
+        }
+
         loop {
             if DEBUG_TRACE_EXECUTION {
                 print!("          ");
@@ -60,6 +72,10 @@ impl VM {
                     let constant: Value = self.read_constant();
                     self.stack.push(constant);
                 },
+                Ok(OpCode::Add) => binary_op!(+),
+                Ok(OpCode::Subtract) => binary_op!(-),
+                Ok(OpCode::Multiply) => binary_op!(*),
+                Ok(OpCode::Divide) => binary_op!(/),
                 Ok(OpCode::Negate) => {
                     if let Some(value) = self.stack.pop() {
                         self.stack.push(-value);
