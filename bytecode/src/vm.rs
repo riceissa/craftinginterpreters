@@ -59,13 +59,11 @@ impl VM {
                 Ok(OpCode::Constant) => {
                     let constant: Value = self.read_constant();
                     self.stack.push(constant);
-                    break;
                 },
                 Ok(OpCode::Negate) => {
                     if let Some(value) = self.stack.pop() {
                         self.stack.push(-value);
                     }
-                    break;
                 },
                 Ok(OpCode::Return) => {
                     if let Some(value) = self.stack.pop() {
@@ -79,6 +77,5 @@ impl VM {
                 }
             }
         }
-        return InterpretResult::Ok;
     }
 }
