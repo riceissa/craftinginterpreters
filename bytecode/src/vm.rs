@@ -27,20 +27,20 @@ impl VM {
         return self.run();
     }
 
-    fn read_byte(&mut self) -> usize {
-        let result = self.ip;
+    fn read_byte(&mut self) -> u8 {
+        let result = self.chunk.code[self.ip];
         self.ip +=1;
         result
     }
 
     fn read_constant(&mut self) -> Value {
         let index = self.read_byte();
-        self.chunk.constants[index]
+        self.chunk.constants[index as usize]
     }
 
     fn run(&mut self) -> InterpretResult {
         loop {
-            let instruction: u8 = self.read_byte() as u8;
+            let instruction: u8 = self.read_byte();
             match instruction.try_into() {
                 Ok(OpCode::Constant) => {
                     let constant: Value = self.read_constant();
