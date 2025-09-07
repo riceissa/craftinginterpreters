@@ -12,7 +12,7 @@ pub fn disassemble_chunk(chunk: &mut Chunk, name: &str) {
     }
 }
 
-fn disassemble_instruction(chunk: &mut Chunk, offset: i32) -> i32 {
+pub fn disassemble_instruction(chunk: &mut Chunk, offset: i32) -> i32 {
     print!("{:04} ", offset);
     if offset > 0 && chunk.lines[offset as usize] == chunk.lines[(offset - 1) as usize] {
         print!("   | ");
@@ -22,6 +22,7 @@ fn disassemble_instruction(chunk: &mut Chunk, offset: i32) -> i32 {
     let instruction: u8 = chunk.code[offset as usize];
     match instruction.try_into() {
         Ok(OpCode::Constant) => constant_instruction("OP_CONSTANT", chunk, offset),
+        Ok(OpCode::Negate) => simple_instruction("OP_NEGATE", offset),
         Ok(OpCode::Return) => simple_instruction("OP_RETURN", offset),
         Err(err) => {
             println!("{} {}", err, instruction);

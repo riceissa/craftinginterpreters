@@ -2,6 +2,9 @@ use std::convert::TryInto;
 
 use crate::chunk::{Chunk, OpCode};
 use crate::value::{Value, print_value};
+use crate::debug::disassemble_instruction;
+
+const DEBUG_TRACE_EXECUTION: bool = true;
 
 pub struct VM {
     pub chunk: Chunk,
@@ -9,6 +12,7 @@ pub struct VM {
                     // relatively, as an offset, mostly because I don't know
                     // how to do it as an actual pointer in Rust and get it to
                     // actually compile.
+    pub stack: Vec<Value>,
 }
 
 pub enum InterpretResult {
@@ -40,15 +44,34 @@ impl VM {
 
     fn run(&mut self) -> InterpretResult {
         loop {
+            if DEBUG_TRACE_EXECUTION {
+                print!("          ");
+                for slot in &self.stack {
+                    print!("[ ");
+                    print_value(&slot);
+                    print!(" ]");
+                }
+                println!("");
+                disassemble_instruction(&mut self.chunk, self.ip as i32);
+            }
             let instruction: u8 = self.read_byte();
             match instruction.try_into() {
                 Ok(OpCode::Constant) => {
                     let constant: Value = self.read_constant();
-                    print_value(&constant);
-                    println!("");
+                    self.stack.push(constant);
+                    break;
+                },
+                Ok(OpCode::Negate) => {
+                    if let Some(value) = self.stack.pop() {
+                        self.stack.push(-value);
+                    }
                     break;
                 },
                 Ok(OpCode::Return) => {
+                    if let Some(value) = self.stack.pop() {
+                        print_value(&value);
+                        println!("");
+                    }
                     return InterpretResult::Ok;
                 }
                 Err(_) => {

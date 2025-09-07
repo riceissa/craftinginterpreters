@@ -9,7 +9,7 @@ use crate::value::Value;
 use crate::vm::{VM};
 
 fn main() {
-    let mut vm: VM = VM{chunk: Chunk::new(), ip: 0};
+    let mut vm: VM = VM{chunk: Chunk::new(), ip: 0, stack: Vec::new()};
     vm.init();
 
     let mut chunk: Chunk = Chunk::new();
@@ -17,6 +17,7 @@ fn main() {
     let constant: isize = chunk.add_constant(Value(1.2));
     chunk.write(OpCode::Constant as u8, 123);
     chunk.write(constant as u8, 123);
+    chunk.write(OpCode::Negate as u8, 123);
 
     chunk.write(OpCode::Return as u8, 123);
 
