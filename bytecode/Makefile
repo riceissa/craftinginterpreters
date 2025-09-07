@@ -1,4 +1,4 @@
-SRCS=src/chunk.rs src/debug.rs src/main.rs src/memory.rs src/value.rs
+SRCS=src/chunk.rs src/debug.rs src/main.rs src/value.rs src/vm.rs
 
 .PHONY: all
 all: tags main

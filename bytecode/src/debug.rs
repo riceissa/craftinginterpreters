@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 use crate::chunk::{Chunk, OpCode};
 use crate::value::print_value;
 
@@ -19,11 +21,11 @@ fn disassemble_instruction(chunk: &mut Chunk, offset: i32) -> i32 {
         print!("{:4} ", chunk.lines[offset as usize])
     }
     let instruction: u8 = chunk.code[offset as usize];
-    match instruction {
-        x if x == OpCode::Constant as u8 => constant_instruction("OP_CONSTANT", chunk, offset),
-        x if x == OpCode::Return as u8 => simple_instruction("OP_RETURN", offset),
-        _ => {
-            println!("Unknown opcode {}", instruction);
+    match instruction.try_into() {
+        Ok(OpCode::Constant) => constant_instruction("OP_CONSTANT", chunk, offset),
+        Ok(OpCode::Return) => simple_instruction("OP_RETURN", offset),
+        Err(err) => {
+            println!("{} {}", err, instruction);
             offset + 1
         }
     }

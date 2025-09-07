@@ -1,9 +1,23 @@
+use std::convert::TryFrom;
+
 use crate::value::{Value, ValueArray};
 
 #[repr(u8)]
 pub enum OpCode {
     Constant = 0,
     Return,
+}
+
+impl TryFrom<u8> for OpCode {
+    type Error = String;
+
+    fn try_from(v: u8) -> Result<Self, Self::Error> {
+        match v {
+            x if x == OpCode::Constant as u8 => Ok(OpCode::Constant),
+            x if x == OpCode::Return as u8 => Ok(OpCode::Return),
+            _ => Err("Unknown opcode".to_string()),
+        }
+    }
 }
 
 pub struct Chunk {

@@ -34,8 +34,7 @@ impl VM {
                     self.ip += 1;
                     print_value(&constant);
                     println!("");
-                    // break;
-                    return InterpretResult::Ok;
+                    break;
                 },
                 x if x == OpCode::Return as u8 => {
                     return InterpretResult::Ok;
@@ -45,5 +44,6 @@ impl VM {
                 }
             }
         }
+        return InterpretResult::Ok;
     }
 }
