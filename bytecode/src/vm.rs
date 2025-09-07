@@ -1,17 +1,17 @@
 use std::convert::TryInto;
 
 use crate::chunk::{Chunk, OpCode};
-use crate::value::{Value, print_value};
 use crate::debug::disassemble_instruction;
+use crate::value::{print_value, Value};
 
 const DEBUG_TRACE_EXECUTION: bool = true;
 
 pub struct VM {
     pub chunk: Chunk,
-    pub ip: usize,  // Unlike the book, we'll store the instruction pointer
-                    // relatively, as an offset, mostly because I don't know
-                    // how to do it as an actual pointer in Rust and get it to
-                    // actually compile.
+    pub ip: usize, // Unlike the book, we'll store the instruction pointer
+    // relatively, as an offset, mostly because I don't know
+    // how to do it as an actual pointer in Rust and get it to
+    // actually compile.
     pub stack: Vec<Value>,
 }
 
@@ -22,18 +22,17 @@ pub enum InterpretResult {
 }
 
 impl VM {
-    pub fn init(&self) {
-    }
+    pub fn init(&self) {}
 
     pub fn interpret(&mut self, chunk: Chunk) -> InterpretResult {
         self.chunk = chunk;
-        self.ip = 0;  // Point to the start of the chunk.code list
+        self.ip = 0; // Point to the start of the chunk.code list
         return self.run();
     }
 
     fn read_byte(&mut self) -> u8 {
         let result = self.chunk.code[self.ip];
-        self.ip +=1;
+        self.ip += 1;
         result
     }
 
@@ -43,8 +42,6 @@ impl VM {
     }
 
     fn run(&mut self) -> InterpretResult {
-
-
         macro_rules! binary_op {
             ($op:tt) => {
                 {
@@ -71,7 +68,7 @@ impl VM {
                 Ok(OpCode::Constant) => {
                     let constant: Value = self.read_constant();
                     self.stack.push(constant);
-                },
+                }
                 Ok(OpCode::Add) => binary_op!(+),
                 Ok(OpCode::Subtract) => binary_op!(-),
                 Ok(OpCode::Multiply) => binary_op!(*),
@@ -80,7 +77,7 @@ impl VM {
                     if let Some(value) = self.stack.pop() {
                         self.stack.push(-value);
                     }
-                },
+                }
                 Ok(OpCode::Return) => {
                     if let Some(value) = self.stack.pop() {
                         print_value(&value);

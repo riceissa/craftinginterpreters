@@ -6,10 +6,14 @@ mod vm;
 use crate::chunk::{Chunk, OpCode};
 use crate::debug::disassemble_chunk;
 use crate::value::Value;
-use crate::vm::{VM};
+use crate::vm::VM;
 
 fn main() {
-    let mut vm: VM = VM{chunk: Chunk::new(), ip: 0, stack: Vec::new()};
+    let mut vm: VM = VM {
+        chunk: Chunk::new(),
+        ip: 0,
+        stack: Vec::new(),
+    };
     vm.init();
 
     let mut chunk: Chunk = Chunk::new();
