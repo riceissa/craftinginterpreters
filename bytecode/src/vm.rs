@@ -1,9 +1,14 @@
+use std::convert::TryInto;
+
 use crate::chunk::{Chunk, OpCode};
 use crate::value::{Value, print_value};
 
 pub struct VM {
     pub chunk: Chunk,
-    pub ip: usize,  // Unlike the book, we'll store the instruction pointer relatively, as an offset
+    pub ip: usize,  // Unlike the book, we'll store the instruction pointer
+                    // relatively, as an offset, mostly because I don't know
+                    // how to do it as an actual pointer in Rust and get it to
+                    // actually compile.
 }
 
 pub enum InterpretResult {
@@ -13,33 +18,40 @@ pub enum InterpretResult {
 }
 
 impl VM {
-    pub fn init() {
+    pub fn init(&self) {
     }
 
     pub fn interpret(&mut self, chunk: Chunk) -> InterpretResult {
         self.chunk = chunk;
-        self.ip = 0;
-        unsafe {
-            return self.run();
-        }
+        self.ip = 0;  // Point to the start of the chunk.code list
+        return self.run();
     }
 
-    unsafe fn run(&mut self) -> InterpretResult {
+    fn read_byte(&mut self) -> usize {
+        let result = self.ip;
+        self.ip +=1;
+        result
+    }
+
+    fn read_constant(&mut self) -> Value {
+        let index = self.read_byte();
+        self.chunk.constants[index]
+    }
+
+    fn run(&mut self) -> InterpretResult {
         loop {
-            let instruction: u8 = self.ip as u8;
-            self.ip += 1;
-            match instruction {
-                x if x == OpCode::Constant as u8 => {
-                    let constant: &Value = &self.chunk.constants[self.ip];
-                    self.ip += 1;
+            let instruction: u8 = self.read_byte() as u8;
+            match instruction.try_into() {
+                Ok(OpCode::Constant) => {
+                    let constant: Value = self.read_constant();
                     print_value(&constant);
                     println!("");
                     break;
                 },
-                x if x == OpCode::Return as u8 => {
+                Ok(OpCode::Return) => {
                     return InterpretResult::Ok;
                 }
-                _ => {
+                Err(_) => {
                     return InterpretResult::RuntimeError;
                 }
             }

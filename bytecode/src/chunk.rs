@@ -15,7 +15,7 @@ impl TryFrom<u8> for OpCode {
         match v {
             x if x == OpCode::Constant as u8 => Ok(OpCode::Constant),
             x if x == OpCode::Return as u8 => Ok(OpCode::Return),
-            _ => Err("Unknown opcode".to_string()),
+            _ => Err(format!("Unknown opcode {}", v)),
         }
     }
 }

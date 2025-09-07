@@ -10,11 +10,11 @@ use crate::vm::{VM};
 
 fn main() {
     let mut vm: VM = VM{chunk: Chunk::new(), ip: 0};
-    VM::init();
+    vm.init();
 
     let mut chunk: Chunk = Chunk::new();
 
-    let constant = chunk.add_constant(Value(1.2));
+    let constant: isize = chunk.add_constant(Value(1.2));
     chunk.write(OpCode::Constant as u8, 123);
     chunk.write(constant as u8, 123);
 
