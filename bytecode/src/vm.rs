@@ -3,6 +3,7 @@ use std::convert::TryInto;
 use crate::chunk::{Chunk, OpCode};
 use crate::debug::disassemble_instruction;
 use crate::value::{print_value, Value};
+use crate::compiler::compile;
 
 const DEBUG_TRACE_EXECUTION: bool = true;
 
@@ -19,17 +20,16 @@ pub struct VM {
 
 pub enum InterpretResult {
     Ok,
-    // CompileError,
+    CompileError,
     RuntimeError,
 }
 
 impl VM {
     pub fn init(&self) {}
 
-    pub fn interpret(&mut self, chunk: Chunk) -> InterpretResult {
-        self.chunk = chunk;
-        self.ip = 0; // Point to the start of the chunk.code list
-        return self.run();
+    pub fn interpret(&mut self, source: &str) -> InterpretResult {
+        compile(source);
+        InterpretResult::Ok
     }
 
     fn read_byte(&mut self) -> u8 {

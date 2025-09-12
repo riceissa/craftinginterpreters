@@ -3,10 +3,38 @@ mod debug;
 mod value;
 mod vm;
 
+use std::env;
+use std::io;
+use std::process::exit;
+use std::fs;
+
 use crate::chunk::{Chunk, OpCode};
 use crate::debug::disassemble_chunk;
 use crate::value::Value;
 use crate::vm::VM;
+
+fn repl() {
+    let mut line = String::new();
+    let stdin = io::stdin();
+    loop {
+        print!("> ");
+
+        if let Ok(xs) = stdin.read_line(&mut line) {
+            interpret(xs);
+        } else {
+            println!("");
+            break;
+        }
+    }
+}
+
+fn run_file(path: &String) {
+    let source = fs::read_to_string(path).expect(fmt!("Could not read file \"{}\".", ));
+    let result: InterpretResult = interpret(source);
+
+    if result == InterpretResult::CompileError { exit(65); }
+    if result == InterpretResult::RuntimeError { exit(70); }
+}
 
 fn main() {
     let mut vm: VM = VM {
@@ -16,28 +44,13 @@ fn main() {
     };
     vm.init();
 
-    let mut chunk: Chunk = Chunk::new();
-
-    let constant: isize = chunk.add_constant(Value(1.2));
-    chunk.write(OpCode::Constant as u8, 123);
-    chunk.write(constant as u8, 123);
-
-    let constant: isize = chunk.add_constant(Value(3.4));
-    chunk.write(OpCode::Constant as u8, 123);
-    chunk.write(constant as u8, 123);
-
-    chunk.write(OpCode::Add as u8, 123);
-
-    let constant: isize = chunk.add_constant(Value(5.6));
-    chunk.write(OpCode::Constant as u8, 123);
-    chunk.write(constant as u8, 123);
-
-    chunk.write(OpCode::Divide as u8, 123);
-    chunk.write(OpCode::Negate as u8, 123);
-
-    chunk.write(OpCode::Return as u8, 123);
-
-    disassemble_chunk(&mut chunk, "test chunk");
-
-    vm.interpret(chunk);
+    let args: Vec<String> = env::args().collect();
+    if args.len() == 1 {
+        repl();
+    } else if args.len() == 2 {
+        run_file(args[1]);
+    } else {
+        eprintln!("Usage: clox [path]");
+        exit(64);
+    }
 }
