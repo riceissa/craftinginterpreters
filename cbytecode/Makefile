@@ -1,6 +1,5 @@
-H_FILES=src/chunk.h src/common.h src/compiler.h src/debug.h src/memory.h src/scanner.h src/value.h src/vm.h
-
-C_FILES=src/chunk.c src/compiler.c src/debug.c src/main.c src/memory.c src/scanner.c src/value.c src/vm.c
+H_FILES=$(wildcard src/*.h)
+C_FILES=$(wildcard src/*.c)
 
 .PHONY: all
 all: tags main
